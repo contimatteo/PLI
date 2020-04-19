@@ -133,3 +133,6 @@ dmypy.json
 *.iws
 /out/
 .idea_modules/
+
+# VS-Code
+.vscode
