@@ -7,4 +7,6 @@ PLDataset = utils.PLCExamplesDataset()
 ##
 
 if __name__ == "__main__":
+    print("\n")
     PLDataset.load()
+    print("\n")

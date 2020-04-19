@@ -4,21 +4,35 @@ from configurations.manager import Manager as ConfigurationManager
 
 
 class PLCExamplesDataset:
+
     ORIGINAL_DATASET_URI: str = "datasets/rosetta-code/Lang"
     DESTINATION_DATASET_URI = "src/data/datasets"
     DATASET_TESTING_FOLDER_NAME = 'testing'
     DATASET_TRAINING_FOLDER_NAME = 'training'
 
-    #
-
     def load(self):
-        absolutePath = os.getcwd() + '/' + self.ORIGINAL_DATASET_URI
-        counter = 0
+        absolutePath = os.path.join(os.getcwd(), self.ORIGINAL_DATASET_URI)
 
-        for directory in os.listdir(absolutePath):
-            directory = str(directory)
-            if directory.lower() in [x.lower() for x in ConfigurationManager.getLanguages()]:
-                print(directory, end='\n')
-                counter = counter + 1
+        for languageDir in os.listdir(absolutePath):
+            languageDir = str(languageDir)
+            numberOfExamples = 0
 
-        print("\n \n counter -> " + str(counter))
+            if languageDir.lower() in [x.lower() for x in ConfigurationManager.getLanguages()]:
+                languageDirectoryAbsoluteUri = os.path.join(absolutePath, languageDir)
+
+                for exampleDir in [f.path for f in os.scandir(languageDirectoryAbsoluteUri) if f.is_dir()]:
+                    # count each version (file) provided for this example
+                    # numberOfExamples += len(os.listdir(os.path.join(languageDirectoryAbsoluteUri, exampleDir)))
+                    # skipping multiple example versions
+                    numberOfExamples += 1
+
+                if numberOfExamples < 400:
+                    print("[INFO] "+languageDir+" ("+str(numberOfExamples)+" examples)")
+
+
+
+
+
+
+
+
