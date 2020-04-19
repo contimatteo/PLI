@@ -1,19 +1,29 @@
-from setuptools import setup
+import setuptools
 
+#
+# with open("README.md", "r") as fh:
+#     long_description = fh.read()
+#
 
-with open("README.md", 'r') as f:
-    long_description = f.read()
+setuptools.setup(
 
+    name="com.contimatteo.ml.plc",
+    version="1.0.0",
+    author="Matteo Conti",
 
-setup(
-    name='plc-problem-solver',
-    version='1.0',
-    description='Programming Languages Classification solver.',
-    # license="MIT",
-    long_description=long_description,
-    author='Matteo Conti',
-    # author_email='?',
-    # url="http://www.foopackage.com/",
-    packages=['dataset_loader', 'tokenizer', 'solver'],
-    # scripts=['scripts/cool']
+    #     author_email="author@example.com",
+    #     description="A small example package",
+    #     long_description=long_description,
+    #     long_description_content_type="text/markdown",
+    #     url="https://github.com/pypa/sampleproject",
+
+    packages=setuptools.find_packages(),
+
+    #     classifiers=[
+    #         "Programming Language :: Python :: 3",
+    #         "License :: OSI Approved :: MIT License",
+    #         "Operating System :: OS Independent",
+    #     ],
+
+    python_requires=">=3.6",
 )
