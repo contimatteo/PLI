@@ -1,6 +1,9 @@
 import os
 import json
-from configurations.manager import Manager as ConfigurationManager
+from plc_configurations.manager import Manager as ConfigurationManager
+
+
+EXAMPLES_NUMBER_THRESHOLD = 400
 
 
 class PLCExamplesDataset:
@@ -26,7 +29,7 @@ class PLCExamplesDataset:
                     # skipping multiple example versions
                     numberOfExamples += 1
 
-                if numberOfExamples < 400:
+                if numberOfExamples < EXAMPLES_NUMBER_THRESHOLD:
                     print("[INFO] "+languageDir+" ("+str(numberOfExamples)+" examples)")
 
 
