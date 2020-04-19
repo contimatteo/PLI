@@ -1,0 +1,3 @@
+[submodule "datasets/rosetta-code"]
+	path = datasets/rosetta-code
+	url = https://github.com/acmeism/RosettaCodeData.git
