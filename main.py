@@ -1,8 +1,12 @@
-#
+from plc_dataset_loader import utils
 
-from .loader import utils
+##
 
-PLDataset = utils.PLExamplesDataset()
+PLDataset = utils.PLCExamplesDataset()
 
-if __name__ == 'main':
+print(__name__)
+
+##
+
+if __name__ == "__main__":
     PLDataset.load()
