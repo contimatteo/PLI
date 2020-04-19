@@ -10,10 +10,10 @@ setup(
     version='1.0',
     description='Programming Languages Classification solver.',
     # license="MIT",
-    long_description = long_description,
+    long_description=long_description,
     author='Matteo Conti',
     # author_email='?',
     # url="http://www.foopackage.com/",
-    packages=['dataset-loader', 'tokenizer', 'solver'],
+    packages=['dataset_loader', 'tokenizer', 'solver'],
     # scripts=['scripts/cool']
 )
