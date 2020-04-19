@@ -13,7 +13,12 @@ class PLCExamplesDataset:
 
     def load(self):
         absolutePath = os.getcwd() + '/' + self.ORIGINAL_DATASET_URI
+        counter = 0
 
         for directory in os.listdir(absolutePath):
-            if directory in ConfigurationManager.getLanguages():
+            directory = str(directory)
+            if directory.lower() in [x.lower() for x in ConfigurationManager.getLanguages()]:
                 print(directory, end='\n')
+                counter = counter + 1
+
+        print("\n \n counter -> " + str(counter))
