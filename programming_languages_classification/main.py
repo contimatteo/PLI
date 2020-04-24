@@ -1,6 +1,8 @@
 # /usr/bin/env python3
 
-from plc_dataset_loader import utils
+import os
+import sys
+from dataset_loader import utils
 
 ##
 
@@ -9,6 +11,6 @@ PLDataset = utils.PLCExamplesDataset()
 ##
 
 if __name__ == "__main__":
-    print("\n")
+    # copy the dataset
     PLDataset.load()
-    print("\n")
+

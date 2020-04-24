@@ -8,7 +8,7 @@ class Manager:
 
     @staticmethod
     def getLanguages():
-        languagesConfigsPath = os.getcwd() + '/configurations/languages.json'
+        languagesConfigsPath = os.path.join(os.getcwd(), 'configurations/languages.json')
 
         # Read only once, simulate Swift 'lazy' behaviour.
         if Manager.__languages is None:
