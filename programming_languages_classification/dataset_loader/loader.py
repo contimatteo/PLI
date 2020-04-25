@@ -1,14 +1,16 @@
+# /usr/bin/env python3
+
 import os
 import sys
 import shutil
-from configurations.manager import Manager as ConfigurationManager
+from configurations import ConfigurationManager
 
 
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
 EXAMPLES_NUMBER_THRESHOLD = 400
 
 
-class PLCExamplesDataset:
+class DatasetLoader:
     SOURCE_FOLDER: str = "../datasets/rosetta-code/Lang"
 
     DESTINATION_FOLDER: str = "data/datasets"

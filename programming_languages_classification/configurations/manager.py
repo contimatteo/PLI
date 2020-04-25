@@ -1,9 +1,11 @@
+# /usr/bin/env python3
+
 import os
 import json
 import configparser
 
 
-class Manager:
+class ConfigurationManager:
     __languages = None
 
     @staticmethod

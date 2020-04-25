@@ -1,16 +1,18 @@
 # /usr/bin/env python3
 
-import os
-import sys
-from dataset_loader import utils
+
+from solver import ProblemSolver
 
 ##
 
-PLDataset = utils.PLCExamplesDataset()
+Solver = ProblemSolver()
 
 ##
 
 if __name__ == "__main__":
-    # copy the dataset
-    PLDataset.load()
-
+    # load the dataset
+    Solver.loadDataset()
+    # train
+    Solver.train('CCN')
+    Solver.train('SVN')
+    Solver.train('BAYES')
