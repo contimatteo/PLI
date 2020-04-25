@@ -96,5 +96,5 @@ class DatasetLoader:
                         file = open(destinationFileUri, "a+")
                         file.close()
                         # copy the original source file content
-                        print("Copying file to --> " + destinationFileUri.replace(ROOT_DIR, ''))
+                        # print("Copying file to --> " + destinationFileUri.replace(ROOT_DIR, ''))
                         shutil.copyfile(exampleVersionFile.path, destinationFileUri)

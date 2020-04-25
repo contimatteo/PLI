@@ -4,10 +4,14 @@ import json
 
 class CcnNetwork:
 
-    def __init__(self, trainingDatasetConfig, testingDatasetConfig):
+    def __init__(self):
+        self.datasets = {}
+
+    def initialize(self, trainingDatasetConfig, testingDatasetConfig):
         self.datasets = {}
         self.datasets['training'] = trainingDatasetConfig
         self.datasets['testing'] = testingDatasetConfig
 
     def train(self):
-        print('CCN training' + json.dumps(self.datasets['training']))
+        # TODO: missing training logic ...
+        return

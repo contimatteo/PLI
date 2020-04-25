@@ -10,9 +10,17 @@ Solver = ProblemSolver()
 ##
 
 if __name__ == "__main__":
+    # ######################################
     # load the dataset
+    print('\n > Initialization ...')
+    Solver.initialize()
+    print('\n > Copying the dataset files ...')
     Solver.loadDataset()
-    # train
+    # ######################################
+    # training
     Solver.train('CCN')
-    Solver.train('SVN')
-    Solver.train('BAYES')
+    # ######################################
+    # testing
+    # Solver.test('CCN')
+    # ######################################
+    print('')
