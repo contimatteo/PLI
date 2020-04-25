@@ -1,14 +1,16 @@
+# /usr/bin/env python3
+
 import os
 import json
 import configparser
 
 
-class Manager:
+class ConfigurationManager:
     __languages = None
 
     @staticmethod
     def getLanguages():
-        languagesConfigsPath = os.getcwd() + '/plc_configurations/languages.json'
+        languagesConfigsPath = os.path.join(os.getcwd(), 'configurations/languages.json')
 
         # Read only once, simulate Swift 'lazy' behaviour.
         if Manager.__languages is None:
