@@ -9,30 +9,35 @@ from .networks.bayes import BayesNetwork
 class ProblemSolver:
 
     def __init__(self):
-        self.DatasetInstance = DatasetLoader()
         self.Networks = {}
+        self.DatasetInstance = DatasetLoader()
 
-        self.Networks['SVN'] = SvnNetwork()
-        self.Networks['CCN'] = CcnNetwork()
-        self.Networks['BAYES'] = BayesNetwork()
-
-    def loadDataset(self):
         config = {}
-        self.DatasetInstance.load()
-
         config['training'] = {}
         config['training']['uri'] = self.DatasetInstance.TRAINING_ABS_URI
         config['testing'] = {}
         config['testing']['uri'] = self.DatasetInstance.TESTING_ABS_URI
-
         self.datasetConfig = config
 
-    def train(self, networkType):
-        dataset = self.datasetConfig['training']
+        self._initialize()
 
+
+    def _initialize(self):
+        config = self.datasetConfig
+        self.Networks = {}
+        self.Networks['SVN'] = SvnNetwork(config['training'], config['testing'])
+        self.Networks['CCN'] = CcnNetwork(config['training'], config['testing'])
+        self.Networks['BAYES'] = BayesNetwork(config['training'], config['testing'])
+
+
+    def loadDataset(self):
+        self.DatasetInstance.load()        
+
+
+    def train(self, networkType):
         if networkType == 'SVN':
-            return self.Networks['SVN'].train(dataset)
+            return self.Networks['SVN'].train()
         elif networkType == 'CCN':
-            return self.Networks['CCN'].train(dataset)
+            return self.Networks['CCN'].train()
         else:
-            return self.Networks['BAYES'].train(dataset)
+            return self.Networks['BAYES'].train()
