@@ -1,6 +1,8 @@
 # /usr/bin/env python3
 
 import os
+import shutil
+
 
 class Tokenizer:
 
@@ -11,6 +13,26 @@ class Tokenizer:
   def initialize(self, networkPrefix, datasetUri):
       self.NETWORK_PREFIX: str = str(networkPrefix)
       self.DATASET_URI: str = str(datasetUri)
+
+
+  ##
+
+
+  def _parseFileContent(self, originalFileUri, parsedFileUri):
+      originalFile = open(originalFileUri, "r")
+      parsedFile = open(parsedFileUri, "a")
+
+      for line in originalFile:
+        # convert to lower case
+        parsedLine = str(line).lower()
+        # write the parsed line to the destination file
+        parsedFile.write(parsedLine)
+
+      originalFile.close()
+      parsedFile.close()
+  
+
+  ##
 
 
   def parse(self):
@@ -24,6 +46,9 @@ class Tokenizer:
               # create an empty file
               file = open(parsedFileUri, "a+")
               file.close()
+              # replace parsed file content
+              originalFileUri = os.path.join(exampleFolder.path, 'original.txt')
+              self._parseFileContent(originalFileUri, parsedFileUri)
             
 
   def tokenize(self):
@@ -36,4 +61,5 @@ class Tokenizer:
               parsedFileUri = os.path.join(exampleFolder.path, parsedFileName)
               # create an empty file
               file = open(parsedFileUri, "a+")
+              file.write('{}')
               file.close()
