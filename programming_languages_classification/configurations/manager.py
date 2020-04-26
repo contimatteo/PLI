@@ -31,3 +31,20 @@ class ConfigurationManager:
 
         return ConfigurationManager.__reserved['words']
 
+    @staticmethod
+    def getEscapedTokens():
+        return {
+            'FILE_BEGIN': '__BOF__\n',
+            'FILE_END': '\n__EOF__',
+            'NEW_LINE': ' __NL__\n', # ISSUE: remove '\n' chars for generating a grammar
+            'NUMBER': '__d__',
+        }
+
+    @staticmethod
+    def getFileNames():
+        return {
+            'ORIGINAL': 'original.txt',
+            'PARSED': 'parsed.txt',
+            '1N_DICTIONARY': '1n-dictionary.json',
+        }
+

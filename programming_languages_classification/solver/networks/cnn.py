@@ -2,7 +2,7 @@
 
 import json
 
-class CcnNetwork:
+class CnnNetwork:
 
     def __init__(self):
         self.datasets = {}

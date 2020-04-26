@@ -1,9 +1,11 @@
 # /usr/bin/env python3
 
-
+import nltk
 from solver import ProblemSolver
 
 ##
+
+nltk.download('punkt')
 
 Solver = ProblemSolver()
 
@@ -18,9 +20,9 @@ if __name__ == "__main__":
     Solver.loadDataset()
     # ######################################
     # training
-    Solver.train('CCN')
+    Solver.train('CNN')
     # ######################################
     # testing
-    # Solver.test('CCN')
+    # Solver.test('CNN')
     # ######################################
     print('')

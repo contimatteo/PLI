@@ -1,15 +1,15 @@
 # /usr/bin/env python3
 
 from dataset_loader import DatasetLoader
-from tokenizer import Tokenizer
-from .networks.ccn import CcnNetwork
+from features_extractor import FeaturesExtractor
+from .networks.cnn import CnnNetwork
 
 
 class ProblemSolver:
 
     def __init__(self):
         # tokenizer
-        self.Tokenizer = Tokenizer()
+        self.FeaturesExtractor = FeaturesExtractor()
 
         # dataset
         self.datasetConfig = {}
@@ -19,7 +19,7 @@ class ProblemSolver:
         
         # networks
         self.Networks = {}
-        self.Networks['CCN'] = CcnNetwork()
+        self.Networks['CNN'] = CnnNetwork()
 
 
     def initialize(self):
@@ -30,7 +30,7 @@ class ProblemSolver:
         trainingConfig = self.datasetConfig['training']
         testingConfig = self.datasetConfig['testing']
 
-        self.Networks['CCN'].initialize(trainingConfig, testingConfig)
+        self.Networks['CNN'].initialize(trainingConfig, testingConfig)
 
 
     def loadDataset(self):
@@ -38,17 +38,20 @@ class ProblemSolver:
 
 
     def train(self, networkType):
-        self.Tokenizer.initialize('CCN', self.datasetConfig['training']['uri'])
-        print('\n > [training] ==> Creating parsed files ...')
-        self.Tokenizer.parse()
-        print(' > [training] ==> Creating dictionaries ...')
-        self.Tokenizer.tokenize()
+        # feature extractor initialization
+        self.FeaturesExtractor.initialize('CNN', self.datasetConfig['training']['uri'])
+        # features pre-processing
+        print('\n > [training] ==> start pre-processing ...')
+        self.FeaturesExtractor.process()
+        # features extraction
+        print(' > [training] ==> start features extraction ...')
+        self.FeaturesExtractor.extract()
 
         # if networkType == 'SVN':
         #     return self.Networks['SVN'].train()
-        # elif networkType == 'CCN':
-        #     return self.Networks['CCN'].train()
+        # elif networkType == 'CNN':
+        #     return self.Networks['CNN'].train()
         # else:
         #     return self.Networks['BAYES'].train()
-        print(' > [training] ==> CCN Training execution ...')
-        self.Networks['CCN'].train()
+        print(' > [training] ==> CNN training execution ...')
+        self.Networks['CNN'].train()

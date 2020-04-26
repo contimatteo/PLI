@@ -8,6 +8,7 @@ from configurations import ConfigurationManager
 
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
 EXAMPLES_NUMBER_THRESHOLD = 400
+FILE_NAMES: dict = ConfigurationManager.getFileNames()
 
 
 class DatasetLoader:
@@ -91,7 +92,7 @@ class DatasetLoader:
                         destinationFolderUri = os.path.join(DATASET_TYPE, language, example)
                         os.mkdir(destinationFolderUri)
                         # prepare destination path for this example (file.txt)
-                        destinationFileUri = os.path.join(destinationFolderUri, 'original.txt')
+                        destinationFileUri = os.path.join(destinationFolderUri, FILE_NAMES['ORIGINAL'])
                         # create an empty file
                         file = open(destinationFileUri, "a+")
                         file.close()
