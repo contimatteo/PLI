@@ -36,8 +36,9 @@ class ConfigurationManager:
         return {
             'FILE_BEGIN': '__BOF__\n',
             'FILE_END': '\n__EOF__',
-            'NEW_LINE': ' __NL__\n', # ISSUE: remove '\n' chars for generating a grammar
-            'NUMBER': '__d__',
+            'NEW_LINE': '__NL__',
+            'ALPHA': '__a__',
+            'NUMBER': '__n__',
         }
 
     @staticmethod

@@ -24,25 +24,21 @@ class DictionaryGenerator:
 
 
   def generate(self):
-      words: list = [] 
-      counters: dict = {}
+      words: set = set([])
       # open files
       parsedFile = open(self.PARSED_URI, "r")
       dictionaryFile = open(self.DICTIONARY_URI, "w+")
 
       # read parsed file contents
       parsedContent = str(parsedFile.read())
-      # removed static chars
-      parsedContent.replace(ESCAPED_TOKENS['NUMBER'], '') # ISSUE: remove this line for generating a grammar
-      # tokenize
-      words = [str(x) for x in nltk.word_tokenize(parsedContent)]
-      # INFO: unecessary counters logic
-      # for word in words:
-      #     if not word in counters: counters[word]: int = 1
-      #     else: counters[word] += 1
-
+      # generating unique 'words' set
+      # words = [str(x) for x in nltk.word_tokenize(parsedContent)]
+      for w in nltk.word_tokenize(parsedContent):
+          # ISSUE: remove the next line for generating a grammar
+          if w != ESCAPED_TOKENS['ALPHA'] and w != ESCAPED_TOKENS['NUMBER']:
+              words.add(w)
       # write the dictionary
-      dictionaryContent: dict = { 'words': words, 'counters': counters }
+      dictionaryContent: dict = { 'words': sorted(words) }
       dictionaryFile.write(json.dumps(dictionaryContent));
       # close files
       parsedFile.close()
