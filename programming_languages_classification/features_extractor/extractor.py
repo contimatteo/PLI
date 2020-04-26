@@ -1,6 +1,7 @@
 # /usr/bin/env python3
 
 import os
+import json
 from .parser import Parser
 from .dictionary import DictionaryGenerator
 from configurations import ConfigurationManager
@@ -19,19 +20,35 @@ class FeaturesExtractor:
 
 
   ##
+  
+  def __getOriginalFileUri(self, exampleFolder):
+    return os.path.join(exampleFolder.path, FILE_NAMES['ORIGINAL'])
 
+
+  def __getParsedFileUri(self, exampleFolder):
+    return os.path.join(exampleFolder.path, FILE_NAMES['PARSED'])   
+
+
+  def __getDictionaryFileUri(self, exampleFolder):
+    dictionaryFileName = self.N_NETWORK_PREFIX + "-" + FILE_NAMES['1N_DICTIONARY']
+    return os.path.join(exampleFolder.path, dictionaryFileName)
+
+
+  def __getFeaturesFileUri(self, languageFolder):
+    return os.path.join(languageFolder.path, FILE_NAMES['FEATURES'])
+
+
+  ##
 
   def process(self):
       for languageFolder in [f for f in os.scandir(self.DATASET_URI) if f.is_dir()]:
           language = str(languageFolder.name).lower()
 
           for exampleFolder in [f for f in os.scandir(languageFolder.path) if f.is_dir()]:
-              example = str(exampleFolder.name).lower()
               # original file ri
-              originalFileUri = os.path.join(exampleFolder.path, FILE_NAMES['ORIGINAL'])
+              originalFileUri = self.__getOriginalFileUri(exampleFolder)   
               # parsed file uri
-              parsedFileName = FILE_NAMES['PARSED']
-              parsedFileUri = os.path.join(exampleFolder.path, parsedFileName)              
+              parsedFileUri = self.__getParsedFileUri(exampleFolder)   
               # create file, if doesn't exists
               if not os.path.exists(parsedFileUri):
                   # create parsed file content
@@ -41,20 +58,48 @@ class FeaturesExtractor:
   
 
   def extract(self):
+      # foreach language
       for languageFolder in [f for f in os.scandir(self.DATASET_URI) if f.is_dir()]:
-          language = str(languageFolder.name).lower()
+          examplesCounter = 0 # FIXME: this will be always 400
+          wordInExamplesCounter: dict = {}
+          wordFrequencies: dict = {}
+          
+          # check if 'features' file already exists
+          featuresFileUri = self.__getFeaturesFileUri(languageFolder)
+          if os.path.exists(featuresFileUri):
+              continue
+          
           # generate the dictionary at 'example' level
           for exampleFolder in [f for f in os.scandir(languageFolder.path) if f.is_dir()]:
-              example = str(exampleFolder.name).lower()
+              examplesCounter += 1
               # parsed file uri
-              parsedFileUri = os.path.join(exampleFolder.path, FILE_NAMES['PARSED'])
+              parsedFileUri = self.__getParsedFileUri(exampleFolder) 
               # dictionary file uri
-              dictionaryFileName = self.N_NETWORK_PREFIX + "-" + FILE_NAMES['1N_DICTIONARY']
-              dictionaryFileUri = os.path.join(exampleFolder.path, dictionaryFileName)
+              dictionaryFileUri = self.__getDictionaryFileUri(exampleFolder)
               # replace parsed file content
               dictionaryGenerator = DictionaryGenerator()
               dictionaryGenerator.initialize(parsedFileUri, dictionaryFileUri)
               dictionaryGenerator.generate()
-          #
-          # TODO: generate the dictionary at 'language' level
-          # ...
+
+          # repeating: count '+1' if a word is contained in this example 
+          for exampleFolder in [f for f in os.scandir(languageFolder.path) if f.is_dir()]:
+              # dictionary file uri
+              dictionaryFileUri = self.__getDictionaryFileUri(exampleFolder)
+              # read dictionary file
+              dictionaryFile = open(dictionaryFileUri, 'r')
+              dictionaryContent: dict = json.loads(str(dictionaryFile.read()))
+              dictionaryFile.close()
+              # count all words in this exmaple
+              for word in dictionaryContent['words']:
+                  if not word in wordInExamplesCounter: wordInExamplesCounter[word] = 1
+                  else: wordInExamplesCounter[word] += 1
+
+          # calculating word frequencies foreach language
+          for word in wordInExamplesCounter:
+              wordFrequencies[word] = wordInExamplesCounter[word] / examplesCounter
+          
+          # saving the dictionary at 'language' level
+          featuresContent: dict = { 'words_frequencies': wordFrequencies }
+          featuresFile = open(featuresFileUri, 'w')
+          featuresFile.write(json.dumps(featuresContent))
+          featuresFile.close()

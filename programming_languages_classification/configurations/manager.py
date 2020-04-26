@@ -46,6 +46,7 @@ class ConfigurationManager:
         return {
             'ORIGINAL': 'original.txt',
             'PARSED': 'parsed.txt',
+            'FEATURES': 'features.json',
             '1N_DICTIONARY': '1n-dictionary.json',
         }
 
