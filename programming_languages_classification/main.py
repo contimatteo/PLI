@@ -12,9 +12,9 @@ Solver = ProblemSolver()
 if __name__ == "__main__":
     # ######################################
     # load the dataset
-    print('\n > Initialization ...')
+    print('\n > [setup] Initialization ...')
     Solver.initialize()
-    print('\n > Copying the dataset files ...')
+    print('\n > [dataset] Copying files ...')
     Solver.loadDataset()
     # ######################################
     # training

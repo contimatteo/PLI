@@ -1,4 +1,8 @@
+autopep8==1.5.2
 joblib==0.14.1
 numpy==1.18.2
+pycodestyle==2.5.0
+pydocstyle==5.0.2
 scikit-learn==0.22.2.post1
 scipy==1.4.1
+snowballstemmer==2.0.0
