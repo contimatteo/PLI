@@ -3,6 +3,7 @@
 from dataset_loader import DatasetLoader
 from features_extractor import FeaturesExtractor
 from .networks.cnn import CnnNetwork
+from .networks.svm import SvmNetwork
 
 
 class ProblemSolver:
@@ -20,6 +21,7 @@ class ProblemSolver:
         # networks
         self.Networks = {}
         self.Networks['CNN'] = CnnNetwork()
+        self.Networks['SVM'] = SvmNetwork()
 
 
     def initialize(self):
@@ -31,6 +33,7 @@ class ProblemSolver:
         testingConfig = self.datasetConfig['testing']
 
         self.Networks['CNN'].initialize(trainingConfig, testingConfig)
+        self.Networks['SVM'].initialize(trainingConfig, testingConfig)
 
 
     def loadDataset(self):
@@ -47,11 +50,9 @@ class ProblemSolver:
         print(' > [training] ==> start features extraction ...')
         self.FeaturesExtractor.extract()
 
-        # if networkType == 'SVN':
-        #     return self.Networks['SVN'].train()
-        # elif networkType == 'CNN':
-        #     return self.Networks['CNN'].train()
-        # else:
-        #     return self.Networks['BAYES'].train()
-        print(' > [training] ==> CNN training execution ...')
-        self.Networks['CNN'].train()
+        if networkType == 'SVM':
+            print(' > [training] ==> SVM training execution ...')
+            return self.Networks['SVM'].train()
+        else:
+            print(' > [training] ==> CNN training execution ...')
+            return self.Networks['CNN'].train()

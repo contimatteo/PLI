@@ -20,7 +20,7 @@ if __name__ == "__main__":
     Solver.loadDataset()
     # ######################################
     # training
-    Solver.train('CNN')
+    Solver.train('SVM')
     # ######################################
     # testing
     # Solver.test('CNN')
