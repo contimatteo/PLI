@@ -71,6 +71,18 @@ class Parser:
       return ' '.join(words);
 
 
+  def _replaceAlphaCharacters(self, line: str): 
+      words: list = line.split(' ')
+      # analyze each word
+      for ix, w in enumerate(words):
+          if len(w) > 1: 
+              continue
+          if regex.match("^[a-zA-Z]$", w): # this word contains only one letter?
+              words[ix] = ESCAPED_TOKENS['ALPHA']
+
+      return ' '.join(words);
+
+
   ##
 
 
@@ -97,6 +109,8 @@ class Parser:
               parsedLine = self._splitPuntaction(parsedLine)
               # replace NUMERIC sequence
               parsedLine = self._replaceNumericSequence(parsedLine)
+              # replace ALPHA chars
+              parsedLine = self._replaceAlphaCharacters(parsedLine)
               # replace NEW LINE char
               # parsedLine += ESCAPED_TOKENS['NEW_LINE']
               # add line to final parsed content

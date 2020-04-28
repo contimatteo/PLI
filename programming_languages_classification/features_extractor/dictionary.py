@@ -32,7 +32,6 @@ class DictionaryGenerator:
       # read parsed file contents
       parsedContent = str(parsedFile.read())
       # generating unique 'words' set
-      # words = [str(x) for x in nltk.word_tokenize(parsedContent)]
       for w in nltk.word_tokenize(parsedContent):
           # ISSUE: remove the next line for generating a grammar
           if w != ESCAPED_TOKENS['ALPHA'] and w != ESCAPED_TOKENS['NUMBER']:

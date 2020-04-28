@@ -6,7 +6,10 @@ from .parser import Parser
 from .dictionary import DictionaryGenerator
 from configurations import ConfigurationManager
 
+
 FILE_NAMES: dict = ConfigurationManager.getFileNames()
+FEATURE_FREQUENCY_THRESHOLD = 0.1
+
 
 class FeaturesExtractor:
 
@@ -94,9 +97,11 @@ class FeaturesExtractor:
                   if not word in wordInExamplesCounter: wordInExamplesCounter[word] = 1
                   else: wordInExamplesCounter[word] += 1
 
-          # calculating word frequencies foreach language
+          # calculate and filter word frequency (foreach language)
           for word in wordInExamplesCounter:
-              wordFrequencies[word] = wordInExamplesCounter[word] / examplesCounter
+              frequency = wordInExamplesCounter[word] / examplesCounter
+              if frequency > FEATURE_FREQUENCY_THRESHOLD:
+                  wordFrequencies[word] = frequency
           
           # saving the dictionary at 'language' level
           featuresContent: dict = { 'words_frequencies': wordFrequencies }
