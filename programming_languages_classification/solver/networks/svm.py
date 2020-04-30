@@ -1,53 +1,109 @@
 # /usr/bin/env python3
 
+import os
+import json
 from sklearn import svm, datasets
 import json
 from .base import _Network
 from sklearn import svm
-import numpy as np
-from sklearn.preprocessing import OrdinalEncoder, LabelEncoder
+import numpy
+from sklearn import preprocessing
+from configurations import ConfigurationManager
+
+
+FILE_NAMES: dict = ConfigurationManager.getFileNames()
 
 
 class SvmNetwork(_Network):
 
+    def __init__(self):
+        super().__init__()
+        self.type = 'SVM'
+
+
+    def prepare(self):        
+        X = []
+        y = []
+        tokens = []
+        languagesFeaturesFileContents: dict = {};
+        X_Encoder = preprocessing.LabelEncoder()
+        
+        # languages
+        for languageFolder in [f for f in os.scandir(self.datasets['training']['uri']) if f.is_dir()]:
+            language = str(languageFolder.name).lower()
+            # read features file
+            featuresFileUri = os.path.join(languageFolder.path, FILE_NAMES['FEATURES'])
+            featuresFile = open(featuresFileUri, 'r')
+            featureFileContent = json.loads(featuresFile.read())
+            featuresFile.close()
+            for word, f in featureFileContent['words_frequencies'].items(): 
+                tokens.append(word)
+            languagesFeaturesFileContents[language] = featureFileContent['words_frequencies']
+            
+        # import or create labels encoder
+        if not os.path.exists(self.getEncoderLabelsFileUri()):
+            # labels encoder fitting
+            X_Encoder.fit(tokens)
+            # export encoder labels file
+            self.exportEncoderLabels(X_Encoder.classes_)
+        else:
+            # import encoder labels file
+            X_Encoder.classes_ = self.importEncoderLabels()
+
+        # add features to training data
+        for language in languagesFeaturesFileContents: 
+            for word, frequency in languagesFeaturesFileContents[language].items(): 
+                token = X_Encoder.transform([word])
+                X.append([token[0], frequency])
+                y.append(language)
+
+        # save data
+        self.training['X'] = numpy.array(X)
+        self.training['y'] = numpy.array(y)
+
+        return self
+
+
     def train(self):
-        # TODO: missing training logic ...
 
-        # '{' => 1
-        # '}' => 2
+        X = self.training['X'].tolist()
 
-        X_Encoder = OrdinalEncoder()
-        X = [[1, 0.3], [2, 0.3], [1, 0.2], [2, 0.2]]
-        # X_Encoder.fit(X)
-        X_encoded = X
-        print('\n' + str(X_encoded))
+        print('')
+        print('')
+        print('X => ' + str(X))
+        print('')
+        print('')
+        
+        # prepare y training data
+        Y_Encoder = preprocessing.LabelEncoder()
+        Y_Encoder.fit(self.training['y'].tolist())
+        y = Y_Encoder.transform(self.training['y'].tolist())
 
-        Y_Encoder = LabelEncoder()
-        y = ['js', 'js', 'unknown', 'unknown']
-        Y_Encoder.fit(y)
-        Y_encoded = Y_Encoder.transform(y)
-        print('\n' + str(Y_encoded))
+        print('')
+        print('')
+        print('y => ' + str(y))
+        print('')
+        print('')
 
-        ##
+        # train
+        model = svm.SVC()
+        model.fit(X, y)
 
-        model1 = svm.SVC()
-        model2 = svm.LinearSVC()
-        model3 = svm.SVC(kernel='rbf')
-        model4 = svm.SVC(kernel='poly')
+        
+        # export the model
+        self.exportTrainedModel(model)
 
-        model1.fit(X_encoded, Y_encoded)
-        model2.fit(X_encoded, Y_encoded)
-        model3.fit(X_encoded, Y_encoded)
-        model4.fit(X_encoded, Y_encoded)
 
-        prediction = model1.predict([[1, 0.25]])
-        print('\n ' + str(Y_Encoder.inverse_transform(prediction)))
+    # def test(self):
+    #     # prepare X testing data
+    #     X_Encoder = preprocessing.LabelEncoder()
+    #     X_encoder.classes_ = self.importEncoderLabels()
+    #     X = X_Encoder.transform(self.testing['X'])
 
-        prediction = model2.predict([[1, 0.25]])
-        print('\n ' + str(Y_Encoder.inverse_transform(prediction)))
+    #     # prepare y testing data
+    #     Y_Encoder = preprocessing.LabelEncoder()
+    #     Y_Encoder.fit(self.testing['y'])
+    #     y = Y_Encoder.transform(self.testing['y'])
 
-        prediction = model3.predict([[1, 0.25]])
-        print('\n ' + str(Y_Encoder.inverse_transform(prediction)))
-
-        prediction = model4.predict([[1, 0.25]])
-        print('\n ' + str(Y_Encoder.inverse_transform(prediction)))
+    #     # model
+    #     model = self.importTrainedModel()

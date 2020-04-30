@@ -52,7 +52,7 @@ class ProblemSolver:
 
         if networkType == 'SVM':
             print(' > [training] ==> SVM training execution ...')
-            return self.Networks['SVM'].train()
+            return self.Networks['SVM'].prepare().train()
         else:
             print(' > [training] ==> CNN training execution ...')
             return self.Networks['CNN'].train()
