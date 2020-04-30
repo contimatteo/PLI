@@ -65,31 +65,17 @@ class SvmNetwork(_Network):
 
 
     def train(self):
-
         X = self.training['X'].tolist()
-
-        print('')
-        print('')
-        print('X => ' + str(X))
-        print('')
-        print('')
         
         # prepare y training data
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(self.training['y'].tolist())
         y = Y_Encoder.transform(self.training['y'].tolist())
 
-        print('')
-        print('')
-        print('y => ' + str(y))
-        print('')
-        print('')
-
         # train
         model = svm.SVC()
         model.fit(X, y)
 
-        
         # export the model
         self.exportTrainedModel(model)
 
