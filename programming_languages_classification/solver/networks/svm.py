@@ -62,7 +62,7 @@ class SvmNetwork(_Network):
                   matched += 1
 
         print('')
-        print('TOTAL MATCHED ==> ' + str(matched / len(predictions)))
+        print(' > [results] % matched ==> ' + str(matched / len(predictions)))
         print('')
 
 
