@@ -21,9 +21,11 @@ if __name__ == "__main__":
     Solver.loadDataset()
     # ######################################
     # training
+    print('')
     Solver.train('SVM')
     # ######################################
     # testing
-    # Solver.test('CNN')
+    print('')
+    Solver.test('SVM')
     # ######################################
     print('')

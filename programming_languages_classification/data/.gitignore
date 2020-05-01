@@ -1,2 +1,2 @@
-training/
-testing/
+*
+!.gitkeep

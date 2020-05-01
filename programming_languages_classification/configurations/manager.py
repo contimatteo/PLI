@@ -17,7 +17,7 @@ class ConfigurationManager:
             with open(languagesConfigsPath) as jsonFile:
                 ConfigurationManager.__languages = json.load(jsonFile)
 
-        return ConfigurationManager.__languages
+        return [str(x).lower() for x in ConfigurationManager.__languages]
 
 
     @staticmethod

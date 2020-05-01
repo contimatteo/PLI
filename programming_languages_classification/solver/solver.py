@@ -42,17 +42,25 @@ class ProblemSolver:
 
     def train(self, networkType):
         # feature extractor initialization
-        self.FeaturesExtractor.initialize('CNN', self.datasetConfig['training']['uri'])
+        self.FeaturesExtractor.initialize(networkType, self.datasetConfig['training']['uri'])
         # features pre-processing
-        print('\n > [training] ==> start pre-processing ...')
+        print(' > [training] ==> start pre-processing ...')
         self.FeaturesExtractor.process()
         # features extraction
         print(' > [training] ==> start features extraction ...')
         self.FeaturesExtractor.extract()
+        print(' > [training] ==> ' + networkType + ' training execution ...')
+        return self.Networks[networkType].train()
+    
 
-        if networkType == 'SVM':
-            print(' > [training] ==> SVM training execution ...')
-            return self.Networks['SVM'].prepare().train()
-        else:
-            print(' > [training] ==> CNN training execution ...')
-            return self.Networks['CNN'].train()
+    def test(self, networkType):
+        # feature extractor initialization
+        self.FeaturesExtractor.initialize(networkType, self.datasetConfig['testing']['uri'])
+        # features pre-processing
+        print(' > [testing] ==> start pre-processing ...')
+        self.FeaturesExtractor.process()
+        # features extraction
+        print(' > [testing] ==> start features extraction ...')
+        self.FeaturesExtractor.extract()
+        # print(' > [testing] ==> ' + networkType + ' testing execution ...')
+        return self.Networks[networkType].test()
