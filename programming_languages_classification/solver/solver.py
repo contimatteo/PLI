@@ -62,5 +62,5 @@ class ProblemSolver:
         # features extraction
         print(' > [testing] ==> start features extraction ...')
         self.FeaturesExtractor.extract()
-        # print(' > [testing] ==> ' + networkType + ' testing execution ...')
+        print(' > [testing] ==> ' + networkType + ' testing execution ...')
         return self.Networks[networkType].test()

@@ -40,8 +40,10 @@ class SvmNetwork(_Network):
             raise Exception('You can\'t test a model without training it')
 
         # preparing testing data
-        
         self.prepareTesting()
+
+        Y_Encoder = preprocessing.LabelEncoder()
+        Y_Encoder.fit(ConfigurationManager.getLanguages())
 
         # get testing data
         X = self.testing['X'].tolist() # numpy array
@@ -51,8 +53,17 @@ class SvmNetwork(_Network):
         model = self.importTrainedModel()
 
         # make predictions
-        prediction = model.predict(X)
+        predictions = model.predict(X)
+
+        matched = 0
+        for index, prediction in enumerate(predictions):
+            predictedLanguage = Y_Encoder.inverse_transform([prediction])[0]
+            if predictedLanguage == y[index]:
+                  matched += 1
+
         print('')
-        # print('[prediction] ==> ' + str(Y_Encoder.inverse_transform(prediction)))
-        print('[prediction] ==> ' + str(prediction))
+        print('TOTAL MATCHED ==> ' + str(matched / len(predictions)))
         print('')
+
+
+

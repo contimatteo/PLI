@@ -102,9 +102,6 @@ class _Network:
     def prepareTesting(self):
         # import/create labels encoder
         X_Encoder: dict = self.importEncoderLabels()
-        # creating encoders
-        Y_Encoder = preprocessing.LabelEncoder()
-        Y_Encoder.fit(ConfigurationManager.getLanguages())
         
         # prepare testing data
         X = []
@@ -130,8 +127,7 @@ class _Network:
                       # x
                       X.append([X_Encoder[word], 1])
                       # y
-                      languageEncoded = Y_Encoder.transform([language]).tolist()
-                      y.append(languageEncoded[0])
+                      y.append(language)
 
         # save data
         self.testing['X'] = numpy.array(X)
