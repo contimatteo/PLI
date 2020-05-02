@@ -1,13 +1,12 @@
 # /usr/bin/env python3
 
-import os
 import re as regex
 import nltk
-from configurations import ConfigurationManager
+from utils import ConfigurationManager
 
 
 RESERVED_WORDS: list = ConfigurationManager.getReservedWords()
-ESCAPED_TOKENS = ConfigurationManager.getEscapedTokens()
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 
 
 class Parser:
