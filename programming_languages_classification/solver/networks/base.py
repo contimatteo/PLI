@@ -1,13 +1,11 @@
 # /usr/bin/env python3
 
 import os
-import bisect
 import joblib
 import numpy
 import json
 from sklearn import preprocessing
 from configurations import ConfigurationManager
-
 
 FILE_NAMES: dict = ConfigurationManager.getFileNames()
 
@@ -18,9 +16,9 @@ class _Network:
         self.type = 'MISSING'
         self.training = {}
         self.testing = {}
+        self.datasets = {}
 
     def initialize(self, trainingDatasetConfig, testingDatasetConfig):
-        self.datasets = {}
         self.datasets['training'] = trainingDatasetConfig
         self.datasets['testing'] = testingDatasetConfig
 
@@ -31,10 +29,10 @@ class _Network:
     def getTrainedModelFileUri(self):
         modelExportFileName: str = self.type.lower() + '.joblib'
         return os.path.join(self.datasets['training']['uri'], *['../', modelExportFileName])
-    
+
     def importEncoderLabels(self):
         file = open(self.getEncoderLabelsFileUri(), 'r')
-        fileContent = file.read();
+        fileContent = file.read()
         file.close()
         return json.loads(fileContent)
 
@@ -45,18 +43,18 @@ class _Network:
             file.close()
 
     def importTrainedModel(self):
-        return joblib.load(self.getTrainedModelFileUri()) 
+        return joblib.load(self.getTrainedModelFileUri())
 
     def exportTrainedModel(self, model):
-        joblib.dump(model, self.getTrainedModelFileUri()) 
+        joblib.dump(model, self.getTrainedModelFileUri())
 
-    def prepareTraining(self):        
-        languagesFeaturesFileContents: dict = {};
+    def prepareTraining(self):
+        languagesFeaturesFileContents: dict = {}
 
         # creating encoders
         X_Encoder: dict = {}
         Y_Encoder = preprocessing.LabelEncoder()
-        
+
         # languages
         counter = 0
         for languageFolder in [f for f in os.scandir(self.datasets['training']['uri']) if f.is_dir()]:
@@ -72,7 +70,7 @@ class _Network:
                     X_Encoder[word] = counter
             # re-use file content after this function ...
             languagesFeaturesFileContents[language] = featureFileContent['words_frequencies']
-            
+
         # import/create labels encoder
         Y_Encoder.fit(ConfigurationManager.getLanguages())
         if not os.path.exists(self.getEncoderLabelsFileUri()):
@@ -85,7 +83,7 @@ class _Network:
         # prepare training data
         X = []
         y = []
-        for language in languagesFeaturesFileContents: 
+        for language in languagesFeaturesFileContents:
             for word, frequency in languagesFeaturesFileContents[language].items():
                 # x
                 X.append([X_Encoder[word], frequency])
@@ -102,7 +100,7 @@ class _Network:
     def prepareTesting(self):
         # import/create labels encoder
         X_Encoder: dict = self.importEncoderLabels()
-        
+
         # prepare testing data
         X = []
         y = []
@@ -113,21 +111,21 @@ class _Network:
             for exampleFolder in [f for f in os.scandir(languageFolder.path) if f.is_dir()]:
                 # list all examples versions in {exampleFolder.name} folder
                 for exampleVersionFile in [f for f in os.scandir(exampleFolder.path) if f.is_file()]:
-                  dictionaryFileName = self.type + "-" + FILE_NAMES['1N_DICTIONARY']
-                  dictionaryFileUri =  os.path.join(exampleFolder.path, dictionaryFileName)
-                  # read file
-                  dictionaryFile = open(dictionaryFileUri, 'r')
-                  dictionaryContent: dict = json.loads(str(dictionaryFile.read()))
-                  dictionaryFile.close()
-                  # get tokens
-                  for word in dictionaryContent['words']:
-                      if not word in X_Encoder:
-                          counter += 1
-                          X_Encoder[word] = counter
-                      # x
-                      X.append([X_Encoder[word], 1])
-                      # y
-                      y.append(language)
+                    dictionaryFileName = FILE_NAMES['3N_DICTIONARY']
+                    dictionaryFileUri = os.path.join(exampleFolder.path, dictionaryFileName)
+                    # read file
+                    dictionaryFile = open(dictionaryFileUri, 'r')
+                    dictionaryContent: dict = json.loads(str(dictionaryFile.read()))
+                    dictionaryFile.close()
+                    # get tokens
+                    for word in dictionaryContent['words']:
+                        if word not in X_Encoder:
+                            counter += 1
+                            X_Encoder[word] = counter
+                        # x
+                        X.append([X_Encoder[word], 1])
+                        # y
+                        y.append(language)
 
         # save data
         self.testing['X'] = numpy.array(X)

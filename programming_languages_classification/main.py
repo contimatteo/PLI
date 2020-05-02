@@ -23,9 +23,11 @@ if __name__ == "__main__":
     # training
     print('')
     Solver.train('SVM')
+    Solver.train('BAYES')
     # ######################################
     # testing
     print('')
     Solver.test('SVM')
+    Solver.test('BAYES')
     # ######################################
     print('')

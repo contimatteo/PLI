@@ -3,11 +3,12 @@
 import os
 import sys
 import shutil
+import random
 from configurations import ConfigurationManager
 
 
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
-EXAMPLES_NUMBER_THRESHOLD = 400
+TRAINING_EXAMPLES_NUMBER: int = 400
 FILE_NAMES: dict = ConfigurationManager.getFileNames()
 
 
@@ -35,13 +36,6 @@ class DatasetLoader:
         if not(os.path.isdir(os.path.join(ROOT_DIR, self.DESTINATION_FOLDER))):
             datasetAlreadyExists = False
             os.mkdir(os.path.join(ROOT_DIR, self.DESTINATION_FOLDER))
-
-        # # delete training dataset if exists
-        # if os.path.isdir(self.TRAINING_ABS_URI):
-        #     shutil.rmtree(self.TRAINING_ABS_URI)
-        # # delete testing dataset if exists
-        # if os.path.isdir(self.TESTING_ABS_URI):
-        #     shutil.rmtree(self.TESTING_ABS_URI)
 
         # initialize training dataset folders
         if not(os.path.isdir(self.TRAINING_ABS_URI)):
@@ -72,20 +66,33 @@ class DatasetLoader:
                 if not(os.path.isdir(os.path.join(self.TESTING_ABS_URI, language))):
                     os.mkdir(os.path.join(self.TESTING_ABS_URI, language))
 
-                examplesForLanguageCounter = 0
-                # list all examples in {languageFolder.name} folder
-                for exampleFolder in [f for f in os.scandir(languageFolder.path) if f.is_dir()]:
+                examplesNumberForThisLanguage = 0
+                examplesPaths = [f for f in os.scandir(languageFolder.path) if f.is_dir()]
 
+                # list all examples in {languageFolder.name} folder
+                for exampleFolder in examplesPaths:
                     # list all examples versions in {exampleFolder.name} folder
                     for exampleVersionFile in [f for f in os.scandir(exampleFolder.path) if f.is_file()]:
-                        examplesForLanguageCounter += 1
+                        examplesNumberForThisLanguage += 1
 
-                        # TODO: create random function ...
+                if examplesNumberForThisLanguage < TRAINING_EXAMPLES_NUMBER:
+                    print(' > [dataset] '+str(language)+' has examples number less than '+str(TRAINING_EXAMPLES_NUMBER))
+                    continue
+
+                # for this language, the total examples number could be less than {TRAINING_EXAMPLES_NUMBER}
+                indexesOfTrainingExamples = random.sample(range(1, examplesNumberForThisLanguage), TRAINING_EXAMPLES_NUMBER)
+
+                # list all examples in {languageFolder.name} folder
+                exampleIndex = 0
+                for exampleFolder in examplesPaths:
+                    # list all examples versions in {exampleFolder.name} folder
+                    for exampleVersionFile in [f for f in os.scandir(exampleFolder.path) if f.is_file()]:
+                        exampleIndex += 1
                         # move file to right dataset
-                        if examplesForLanguageCounter > EXAMPLES_NUMBER_THRESHOLD:
-                            DATASET_TYPE = self.TESTING_ABS_URI
-                        else:
+                        if exampleIndex in indexesOfTrainingExamples:
                             DATASET_TYPE = self.TRAINING_ABS_URI
+                        else:
+                            DATASET_TYPE = self.TESTING_ABS_URI
 
                         # prepare destination folder
                         example = str(exampleVersionFile.name).lower()
@@ -97,5 +104,5 @@ class DatasetLoader:
                         file = open(destinationFileUri, "a+")
                         file.close()
                         # copy the original source file content
-                        # print("Copying file to --> " + destinationFileUri.replace(ROOT_DIR, ''))
+                        # Copying file to --> destinationFileUri.replace(ROOT_DIR, '')
                         shutil.copyfile(exampleVersionFile.path, destinationFileUri)

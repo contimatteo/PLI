@@ -2,7 +2,7 @@
 
 import os
 import json
-import configparser
+
 
 class ConfigurationManager:
     __languages = None
@@ -19,7 +19,6 @@ class ConfigurationManager:
 
         return [str(x).lower() for x in ConfigurationManager.__languages]
 
-
     @staticmethod
     def getReservedWords():
         reservedConfig = os.path.join(os.getcwd(), 'configurations/reserved.json')
@@ -34,8 +33,8 @@ class ConfigurationManager:
     @staticmethod
     def getEscapedTokens():
         return {
-            'FILE_BEGIN': '__BOF__\n',
-            'FILE_END': '\n__EOF__',
+            'FILE_BEGIN': '__BOF__',
+            'FILE_END': '__EOF__',
             'NEW_LINE': '__NL__',
             'ALPHA': '__a__',
             'NUMBER': '__n__',
@@ -47,6 +46,5 @@ class ConfigurationManager:
             'ORIGINAL': 'original.txt',
             'PARSED': 'parsed.txt',
             'FEATURES': 'features.json',
-            '1N_DICTIONARY': '1n-dictionary.json',
+            '3N_DICTIONARY': 'dictionary.json',
         }
-
