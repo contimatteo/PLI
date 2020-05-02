@@ -2,16 +2,16 @@
 
 import os
 from .base import _Network
-from sklearn import naive_bayes
+from sklearn import svm
 from sklearn import preprocessing
 from configurations import ConfigurationManager
 
 
-class BayesNetwork(_Network):
+class SvmNetwork(_Network):
 
     def __init__(self):
         super().__init__()
-        self.type = 'BAYES'
+        self.type = 'SVM'
 
     def train(self):
         if os.path.exists(self.getTrainedModelFileUri()):
@@ -25,7 +25,7 @@ class BayesNetwork(_Network):
         y = self.training['y'].tolist()
 
         # train
-        model = naive_bayes.GaussianNB()
+        model = svm.SVC()
         model.fit(X, y)
 
         # export the model
