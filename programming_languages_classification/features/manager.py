@@ -44,8 +44,11 @@ class FeaturesManager:
             if os.path.exists(featuresFileUri):
                 continue
 
+            examplesFolders = FileManager.getExamplesFolders(languageFolder.path)
+            languagesExamplesCounter = len(examplesFolders)
+
             # generate the dictionary at 'example' level
-            for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
+            for exampleFolder in examplesFolders:
                 # parsed file uri
                 parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
                 # dictionary file uri
@@ -59,7 +62,7 @@ class FeaturesManager:
                 continue
 
             # repeating: count '+1' if a word is contained in this example
-            for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
+            for exampleFolder in examplesFolders:
                 # read dictionary file
                 dictionaryFileUri = FileManager.getDictionaryFileUrl(exampleFolder.path)
                 dictionaryContent = json.loads(FileManager.readFile(dictionaryFileUri))
@@ -72,7 +75,7 @@ class FeaturesManager:
 
             # calculate and filter word frequency (foreach language)
             for word in wordInExamplesCounter:
-                frequency = wordInExamplesCounter[word] / ConfigurationManager.getLanguagesExamplesCounter()[language]
+                frequency = wordInExamplesCounter[word] / languagesExamplesCounter
                 if frequency > FEATURE_FREQUENCY_THRESHOLD:
                     wordFrequencies[word] = frequency
 

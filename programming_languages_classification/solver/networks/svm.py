@@ -57,7 +57,7 @@ class SvmNetwork(_Network):
             if predictedLanguage == y[index]:
                 matched += 1
 
-        print(' > [testing] ' + self.type + ' % matched ==> ' + str(matched / len(predictions)))
+        print(' > [testing] ==> ' + self.type + ' (% matched) = ' + str(matched / len(predictions)))
 
 
 

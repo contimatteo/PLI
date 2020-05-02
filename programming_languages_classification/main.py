@@ -26,12 +26,13 @@ if __name__ == "__main__":
 
     # training
     Solver.train('SVM')
-    # Solver.train('BAYES')
+    print('')
+    Solver.train('BAYES')
     print('')
 
     # testing
-
     Solver.test('SVM')
-    # Solver.test('BAYES')
+    print('')
+    Solver.test('BAYES')
     print('')
 

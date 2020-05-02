@@ -7,7 +7,7 @@ import sys
 
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
 SOURCE_FOLDER: str = "../datasets/rosetta-code/Lang"
-DESTINATION_FOLDER: str = "tmp"
+DESTINATION_FOLDER: str = "data"
 TRAINING_FOLDER: str = 'training'
 TESTING_FOLDER: str = 'testing'
 

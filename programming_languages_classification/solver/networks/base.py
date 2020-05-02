@@ -84,12 +84,15 @@ class _Network:
         X_Encoder: dict = self.importEncoderLabels()
 
         # prepare testing data
-        X = [], y = [], counter = max(X_Encoder.values())
+        X = []
+        y = []
+        counter = max(X_Encoder.values())
         for languageFolder in FileManager.getLanguagesFolders(self.datasets['testing']['url']):
             language = languageFolder.name
             # list all examples in {languageFolder.name} folder
             for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
                 dictionaryContent = FileManager.readFile(FileManager.getDictionaryFileUrl(exampleFolder.path))
+                dictionaryContent = json.loads(dictionaryContent)
                 # get tokens
                 for word in dictionaryContent['words']:
                     if word not in X_Encoder:

@@ -34,28 +34,15 @@ class DatasetManager:
         # create folders ...
         datasetAlreadyExists = create_folders()
 
-        # count example foreach language
-        languagesExamplesCounter = {}
-        for languageFolder in [f for f in os.scandir(SOURCE_URL) if f.is_dir()]:
-            language = str(languageFolder.name).lower()
-            # parse only selected languages
-            if language in ConfigurationManager.getLanguages():
-                languagesExamplesCounter[language] = 0
-                # list all examples in {languageFolder.name} folder
-                for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
-                    for _ in FileManager.getExampleFiles(exampleFolder.path):
-                        languagesExamplesCounter[language] += 1
-
-        # save examples counter by language
-        ConfigurationManager.setLanguagesExamplesCounter(languagesExamplesCounter)
-
         # return if dataset already exists
         if datasetAlreadyExists:
             return self
 
         # foreach directory in '/Lang' folder ...
+        languagesExamplesCounter = {}
         for languageFolder in [f for f in os.scandir(SOURCE_URL) if f.is_dir()]:
             language = str(languageFolder.name).lower()
+            languagesExamplesCounter[language] = 0
             # parse only selected languages
             if language in ConfigurationManager.getLanguages():
                 # preparing empty {languageFolder.name} for each dataset
@@ -63,6 +50,11 @@ class DatasetManager:
                     os.mkdir(os.path.join(TRAINING_URL, language))
                 if not(os.path.isdir(os.path.join(TESTING_URL, language))):
                     os.mkdir(os.path.join(TESTING_URL, language))
+
+                # count example foreach language
+                for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
+                    for _ in FileManager.getExampleFiles(exampleFolder.path):
+                        languagesExamplesCounter[language] += 1
 
                 # print languages with examples counter less than {TRAINING_EXAMPLES_NUMBER}
                 if languagesExamplesCounter[language] < TRAINING_EXAMPLES_NUMBER:
