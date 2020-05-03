@@ -76,6 +76,9 @@ class FileManagerClass:
     def getExampleFiles(self, exampleFolderUrl: str):
         return [f for f in os.scandir(exampleFolderUrl) if f.is_file()]
 
+    def getRootUrl(self):
+        return ROOT_DIR
+
 ##
 
 
