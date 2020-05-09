@@ -1,6 +1,6 @@
 # /usr/bin/env python3
 
-from solver import ProblemSolver as ProblemSolverClass
+from solver import ProblemSolver
 from utils import FileManager
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -25,14 +25,12 @@ import os
 import json
 import sys
 
-
-ProblemSolver = ProblemSolverClass()
-
 ##
 
-
 def main():
-    ProblemSolver.loadDataset()
+    Solver = ProblemSolver()
+    Solver.initialize()
+    Solver.loadDataset()
 
     #
 
@@ -54,7 +52,8 @@ def main():
     embed_dim = 128
     lstm_out = 64
     batch_size = 32
-    epochs = 100
+    epochs = 10
+    test_size = 0.5
 
     tokenizer = Tokenizer(num_words=max_fatures)
     tokenizer.fit_on_texts(code_archive)
@@ -64,7 +63,7 @@ def main():
     X = tokenizer.texts_to_sequences(code_archive)
     X = pad_sequences(X, 100)
     Y = pd.get_dummies(languages)
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.001)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size)
 
     # LSTM model
     model = Sequential()

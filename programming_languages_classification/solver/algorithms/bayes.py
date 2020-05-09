@@ -1,13 +1,13 @@
 # /usr/bin/env python3
 
 import os
-from .base import _Network
+from .base_tensorflow import _TensorflowAlgorithm
 from sklearn import naive_bayes
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
 
 
-class BayesNetwork(_Network):
+class NaiveBayes(_TensorflowAlgorithm):
 
     def __init__(self):
         super().__init__()

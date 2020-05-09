@@ -1,18 +1,11 @@
 # /usr/bin/env python3
 
-import nltk
 from solver import ProblemSolver
 
-##
-
-nltk.download('punkt')
-
-Solver = ProblemSolver()
-
-##
 
 if __name__ == "__main__":
     print('')
+    Solver = ProblemSolver()
 
     # initialize
     print(' > [setup] Initialization ...')
@@ -25,14 +18,12 @@ if __name__ == "__main__":
     print('')
 
     # training
-    Solver.train('SVM')
-    print('')
-    Solver.train('BAYES')
+    print(' > [training] ==> CNN training execution ...')
+    Solver.train('CNN')
     print('')
 
     # testing
-    Solver.test('SVM')
-    print('')
-    Solver.test('BAYES')
+    print(' > [testing] ==> CNN algorithm execution ...')
+    # Solver.test('CNN')
     print('')
 
