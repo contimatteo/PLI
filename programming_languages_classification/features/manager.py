@@ -52,7 +52,7 @@ class FeaturesManager:
                 # parsed file uri
                 parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
                 # dictionary file uri
-                dictionaryFileUri = FileManager.getDictionaryFileUrl(exampleFolder.path)
+                dictionaryFileUri = FileManager.getMapFileUrl(exampleFolder.path)
                 # generate dictionary file content
                 dictionaryGenerator = DictionaryGenerator()
                 dictionaryGenerator.initialize(parsedFileUri, dictionaryFileUri)
@@ -64,7 +64,7 @@ class FeaturesManager:
             # repeating: count '+1' if a word is contained in this example
             for exampleFolder in examplesFolders:
                 # read dictionary file
-                dictionaryFileUri = FileManager.getDictionaryFileUrl(exampleFolder.path)
+                dictionaryFileUri = FileManager.getMapFileUrl(exampleFolder.path)
                 dictionaryContent = json.loads(FileManager.readFile(dictionaryFileUri))
                 # count all words in this exmaple
                 for word in dictionaryContent['words']:

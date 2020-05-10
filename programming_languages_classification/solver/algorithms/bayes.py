@@ -11,7 +11,7 @@ class NaiveBayes(_TensorflowAlgorithm):
 
     def __init__(self):
         super().__init__()
-        self.type = 'BAYES'
+        self.type = 'Naive-Bayes'
 
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):

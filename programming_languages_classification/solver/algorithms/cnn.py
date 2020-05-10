@@ -24,7 +24,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 128,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 10,
+    'epochs': 5,
     'max_len_sequences': 100,
     'test_size': 0.5
 }
@@ -71,7 +71,7 @@ class CNN(_TensorflowAlgorithm):
         return raw_X, raw_Y
 
     def train(self):
-        # TODO: fix model file url
+        # check if a trained model already exists
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
 
@@ -80,42 +80,47 @@ class CNN(_TensorflowAlgorithm):
         batch_size: int = self.config['batch_size']
         epochs: int = self.config['epochs']
         test_size: int = self.config['test_size']
+        input_length: int = self.config['max_len_sequences']
+
+        #
+        # PREPARE FEATURES
+        #
 
         # preparing features
         codeArchive, languages, = self.__prepareFeatures('training')
 
-        # # get training data
-        # X = self.training['X'].tolist()
-        # y = self.training['y'].tolist()
-        #
-        # # train
-        # model = svm.SVC()
-        # model.fit(X, y)
-
+        # tokenization
         tokenizer = Tokenizer(num_words=max_features)
         tokenizer.fit_on_texts(codeArchive)
-        dictionary = tokenizer.word_index
-        FileManager.createFile(os.path.join(FileManager.getRootUrl(), 'data/wordindex.json'), json.dumps(dictionary))
-
+        # (X, Y) creation
         X = tokenizer.texts_to_sequences(codeArchive)
-        X = pad_sequences(X, 100)
+        X = pad_sequences(X, maxlen=input_length)
         Y = pd.get_dummies(languages)
+
+        # export words indexes
+        self.exportWordsIndexes(tokenizer.word_index)
+
+        # split training and testing data
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size)
+
+        #
+        # TRAINING
+        #
 
         # prepare model
         self.__prepareModel(X, Y)
-
+        # training
         history = self.model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size)
+        # export the trained model
+        self.exportTrainedModel()
 
-        # TODO: centralize model export
-        # self.exportTrainedModel(model)
-        self.model.save(os.path.join(FileManager.getRootUrl(), 'data/code_model.h5'))
-        self.model.save_weights(os.path.join(FileManager.getRootUrl(), 'data/code_model_weights.h5'))
-
+        # model evaluation
         score, acc = self.model.evaluate(X_test, Y_test, verbose=2, batch_size=batch_size)
-        print(self.model.metrics_names)
-        print("Validation loss: %f" % score)
-        print("Validation acc: %f" % acc)
+        print(' ')
+        print(" > [training] Model validation loss: %f" % score)
+        print(" > [training] Model validation acc: %f" % acc)
+
+        return self
 
 
     # def test(self):

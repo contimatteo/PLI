@@ -18,10 +18,10 @@ class _ScikitLearnAlgorithm:
         return self
 
     def importEncoderLabels(self):
-        return json.loads(FileManager.readFile(FileManager.getEncoderLabelsFileUrl(self.type)))
+        return json.loads(FileManager.readFile(FileManager.getDictionaryFileUrl(self.type)))
 
     def exportEncoderLabels(self, labels):
-        path = FileManager.getEncoderLabelsFileUrl(self.type)
+        path = FileManager.getDictionaryFileUrl(self.type)
         if not os.path.exists(path):
             FileManager.writeFile(path, json.dumps(labels))
 

@@ -1,11 +1,9 @@
 # /usr/bin/env python3
 
 import os
-import joblib
-import numpy
+from keras.models import load_model
 import json
-from sklearn import preprocessing
-from utils import FileManager, ConfigurationManager
+from utils import FileManager
 from dataset import DatasetInstance
 
 
@@ -22,19 +20,22 @@ class _TensorflowAlgorithm:
     # #####################################################################
     # #####################################################################
 
-    # def importEncoderLabels(self):
-    #     return json.loads(FileManager.readFile(FileManager.getEncoderLabelsFileUrl(self.type)))
-    #
-    # def exportEncoderLabels(self, labels):
-    #     path = FileManager.getEncoderLabelsFileUrl(self.type)
-    #     if not os.path.exists(path):
-    #         FileManager.writeFile(path, json.dumps(labels))
-    #
-    # def importTrainedModel(self):
-    #     return joblib.load(FileManager.getTrainedModelFileUrl(self.type))
-    #
-    # def exportTrainedModel(self, model):
-    #     joblib.dump(model, FileManager.getTrainedModelFileUrl(self.type))
+    def importWordsIndexes(self):
+        return json.loads(FileManager.readFile(FileManager.getWordsIndexesFileUrl(self.type)))
+
+    def exportWordsIndexes(self, indexes):
+        path = FileManager.getWordsIndexesFileUrl(self.type)
+        if not os.path.exists(path):
+            FileManager.writeFile(path, json.dumps(indexes))
+
+    def importTrainedModel(self):
+        url = FileManager.getTrainedModelFileUrl(self.type)
+        return load_model(url)
+
+    def exportTrainedModel(self):
+        url = FileManager.getTrainedModelFileUrl(self.type)
+        self.model.save(os.path.join(url))
+        self.model.save_weights(url)
 
     # #####################################################################
     # #####################################################################
