@@ -53,7 +53,7 @@ def main():
     lstm_out = 64
     batch_size = 32
     epochs = 10
-    test_size = 0.5
+    test_size = 0.001
 
     tokenizer = Tokenizer(num_words=max_fatures)
     tokenizer.fit_on_texts(code_archive)

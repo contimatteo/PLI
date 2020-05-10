@@ -54,11 +54,6 @@ class FileManagerClass:
         name: str = algorithm.lower() + '.' + extension
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
 
-    def getTrainedModelWeightsFileUrl(self, algorithm: str):
-        extension = self.__getModelFileExtensionByAlgorithm(algorithm)
-        name: str = algorithm.lower() + '-weights.' + extension
-        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
-
     def readFile(self, url):
         file = open(url, 'r')
         fileContent = file.read()

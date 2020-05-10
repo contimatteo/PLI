@@ -24,28 +24,16 @@ class _TensorflowAlgorithm:
         return json.loads(FileManager.readFile(FileManager.getWordsIndexesFileUrl(self.type)))
 
     def exportWordsIndexes(self, indexes):
-        path = FileManager.getWordsIndexesFileUrl(self.type)
-        if not os.path.exists(path):
-            FileManager.writeFile(path, json.dumps(indexes))
-
+        FileManager.writeFile(FileManager.getWordsIndexesFileUrl(self.type), json.dumps(indexes))
         return self
 
     def importTrainedModel(self):
-        modelUrl = FileManager.getTrainedModelFileUrl(self.type)
-        weightsUrl = FileManager.getTrainedModelWeightsFileUrl(self.type)
-
         self.model = None
-        self.model = load_model(modelUrl)
-        self.model.load_weights(weightsUrl)
-
+        self.model = load_model(FileManager.getTrainedModelFileUrl(self.type))
         return self
 
     def exportTrainedModel(self):
-        modelUrl = FileManager.getTrainedModelFileUrl(self.type)
-        weightsUrl = FileManager.getTrainedModelWeightsFileUrl(self.type)
-        self.model.save(modelUrl)
-        self.model.save_weights(weightsUrl)
-
+        self.model.save(FileManager.getTrainedModelFileUrl(self.type))
         return self
 
     # #####################################################################

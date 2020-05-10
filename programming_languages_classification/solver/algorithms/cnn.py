@@ -15,7 +15,6 @@ from keras.layers import Dropout, Bidirectional
 from keras.layers.recurrent import LSTM
 from sklearn.model_selection import train_test_split
 import os
-import json
 import numpy as np
 import keras.preprocessing.text as kpt
 
@@ -26,9 +25,9 @@ MODEL_CONFIG: dict = {
     'embed_dim': 128,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 100,
+    'epochs': 10,
     'max_len_sequences': 100,
-    'test_size': 0.5
+    'test_size': 0.001
 }
 
 
@@ -111,7 +110,6 @@ class CNN(_TensorflowAlgorithm):
 
         # prepare model
         self.__prepareModel(Y)
-        self.model.summary()
         # training
         history = self.model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size)
         # export the trained model
@@ -136,40 +134,35 @@ class CNN(_TensorflowAlgorithm):
         totalExamples = 0
         input_length: int = self.config['max_len_sequences']
 
+        # preparing features
+        languages = ConfigurationManager.getLanguages()
+        codeArchive, Y_raw, = self.__prepareFeatures('testing')
+
         # import words indexes
         wordsIndexes = self.importWordsIndexes()
         # import trained model
         self.importTrainedModel()
-        self.model.summary()
 
-        # preparing features
-        codeArchive, languages, = self.__prepareFeatures('testing')
-
-        for idx, exampleSourceCode in enumerate(codeArchive):
-            language = languages[idx]
+        for index, exampleSourceCode in enumerate(codeArchive):
             totalExamples += 1
 
             # tokenization
             word_vec = self.__generateWordsIndexesForUnknownExample(wordsIndexes, exampleSourceCode)
-            X_test = [word_vec]
-            X_test = pad_sequences(X_test, maxlen=input_length)
+            X_test = pad_sequences([word_vec], maxlen=input_length)
 
             # predict
             y_prob = self.model.predict(X_test[0].reshape(1, X_test.shape[1]), batch_size=1, verbose=2)[0]
 
             # match language prediction
             a = np.array(y_prob)
-            idx = np.argmax(a)
-            if str(languages[idx]) == language:
+            languagePredictedIndex = np.argmax(a)
+            if str(languages[languagePredictedIndex]) == Y_raw[index]:
                 matched += 1
 
         print('')
-        print('')
-        print('totalExamples = ' + str(totalExamples))
-        print('matched = ' + str(matched))
-        print('matched / totalExamples  = ' + str(matched / totalExamples))
-        print('')
-        print('')
+        print('> [testing] number of total examples = ' + str(totalExamples))
+        print('> [testing] examples matched = ' + str(matched))
+        print('> [testing] % success (matched/totalExamples) = ' + str(matched / totalExamples))
 
     def __generateWordsIndexesForUnknownExample(self, wordsIndexes, source: str):
         wordvec = []
