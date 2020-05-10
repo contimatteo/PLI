@@ -24,6 +24,6 @@ if __name__ == "__main__":
 
     # testing
     print(' > [testing] ==> CNN algorithm execution ...')
-    # Solver.test('CNN')
+    Solver.test('CNN')
     print('')
 

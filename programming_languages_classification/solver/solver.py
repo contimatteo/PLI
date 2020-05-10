@@ -31,6 +31,5 @@ class ProblemSolver:
         return self
 
     def test(self, algorithm):
-        print(' > [testing] ==> ' + algorithm + ' testing ...')
         self.Algorithms[algorithm].test()
         return self

@@ -16,6 +16,8 @@ from keras.layers.recurrent import LSTM
 from sklearn.model_selection import train_test_split
 import os
 import json
+import numpy as np
+import keras.preprocessing.text as kpt
 
 #
 
@@ -24,7 +26,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 128,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 5,
+    'epochs': 100,
     'max_len_sequences': 100,
     'test_size': 0.5
 }
@@ -37,7 +39,7 @@ class CNN(_TensorflowAlgorithm):
         self.type = 'CNN'
         self.config = MODEL_CONFIG.copy()
 
-    def __prepareModel(self, X, Y):
+    def __prepareModel(self, Y):
         max_features: int = self.config['max_features']
         embed_dim: int = self.config['embed_dim']
         input_length: int = self.config['max_len_sequences']
@@ -108,7 +110,8 @@ class CNN(_TensorflowAlgorithm):
         #
 
         # prepare model
-        self.__prepareModel(X, Y)
+        self.__prepareModel(Y)
+        self.model.summary()
         # training
         history = self.model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size)
         # export the trained model
@@ -122,34 +125,66 @@ class CNN(_TensorflowAlgorithm):
 
         return self
 
+    def test(self):
+        if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
+            raise Exception('You can\'t test a model without training it.')
 
-    # def test(self):
-    #     if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
-    #         raise Exception('You can\'t test a model without training it')
-    #
-    #     # preparing testing data
-    #     self.prepareTesting()
-    #
-    #     Y_Encoder = preprocessing.LabelEncoder()
-    #     Y_Encoder.fit(ConfigurationManager.getLanguages())
-    #
-    #     # get testing data
-    #     X = self.testing['X'].tolist() # numpy array
-    #     y = self.testing['y'].tolist() # numpy array
-    #
-    #     # model
-    #     model = self.importTrainedModel()
-    #
-    #     # make predictions
-    #     predictions = model.predict(X)
-    #
-    #     matched = 0
-    #     for index, prediction in enumerate(predictions):
-    #         predictedLanguage = Y_Encoder.inverse_transform([prediction])[0]
-    #         if predictedLanguage == y[index]:
-    #             matched += 1
-    #
-    #     print(' > [testing] ==> ' + self.type + ' (% matched) = ' + str(matched / len(predictions)))
+        self.model = None
 
+        # configs
+        matched = 0
+        totalExamples = 0
+        input_length: int = self.config['max_len_sequences']
 
+        # import words indexes
+        wordsIndexes = self.importWordsIndexes()
+        # import trained model
+        self.importTrainedModel()
+        self.model.summary()
 
+        # preparing features
+        codeArchive, languages, = self.__prepareFeatures('testing')
+
+        for idx, exampleSourceCode in enumerate(codeArchive):
+            language = languages[idx]
+            totalExamples += 1
+
+            # tokenization
+            word_vec = self.__generateWordsIndexesForUnknownExample(wordsIndexes, exampleSourceCode)
+            X_test = [word_vec]
+            X_test = pad_sequences(X_test, maxlen=input_length)
+
+            # predict
+            y_prob = self.model.predict(X_test[0].reshape(1, X_test.shape[1]), batch_size=1, verbose=2)[0]
+
+            # match language prediction
+            a = np.array(y_prob)
+            idx = np.argmax(a)
+            if str(languages[idx]) == language:
+                matched += 1
+
+        print('')
+        print('')
+        print('totalExamples = ' + str(totalExamples))
+        print('matched = ' + str(matched))
+        print('matched / totalExamples  = ' + str(matched / totalExamples))
+        print('')
+        print('')
+
+    def __generateWordsIndexesForUnknownExample(self, wordsIndexes, source: str):
+        wordvec = []
+        max_features: int = self.config['max_features']
+
+        # one really important thing that `text_to_word_sequence` does
+        # is make all texts the same length -- in this case, the length
+        # of the longest text in the set.
+        for word in kpt.text_to_word_sequence(source):
+            if word in wordsIndexes:
+                if wordsIndexes[word] <= max_features:
+                    wordvec.append([wordsIndexes[word]])
+                else:
+                    wordvec.append([0])
+            else:
+                wordvec.append([0])
+
+        return wordvec

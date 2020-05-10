@@ -46,15 +46,18 @@ class FileManagerClass:
         return languageFolder + '/' + FILE_NAMES['FEATURES'] + '.json'
 
     def getWordsIndexesFileUrl(self, algorithm: str, axis: str = 'x'):
-        labelEncoderFileName = axis + '-' + algorithm.lower() + '.json'
-        path: str = '../' + WORDS_INDEXES_FOLDER
-        return os.path.join(self.datasets['training']['url'], *[path, labelEncoderFileName])
+        name: str = axis + '-' + algorithm.lower() + '.json'
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER, name])
 
     def getTrainedModelFileUrl(self, algorithm: str):
-        fileExtension = self.__getModelFileExtensionByAlgorithm(algorithm)
-        modelExportFileName: str = algorithm.lower() + '.' + fileExtension
-        path: str = '../' + MODELS_FOLDER
-        return os.path.join(self.datasets['training']['url'], *[path, modelExportFileName])
+        extension = self.__getModelFileExtensionByAlgorithm(algorithm)
+        name: str = algorithm.lower() + '.' + extension
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
+
+    def getTrainedModelWeightsFileUrl(self, algorithm: str):
+        extension = self.__getModelFileExtensionByAlgorithm(algorithm)
+        name: str = algorithm.lower() + '-weights.' + extension
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
 
     def readFile(self, url):
         file = open(url, 'r')

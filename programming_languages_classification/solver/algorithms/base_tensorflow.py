@@ -28,14 +28,25 @@ class _TensorflowAlgorithm:
         if not os.path.exists(path):
             FileManager.writeFile(path, json.dumps(indexes))
 
+        return self
+
     def importTrainedModel(self):
-        url = FileManager.getTrainedModelFileUrl(self.type)
-        return load_model(url)
+        modelUrl = FileManager.getTrainedModelFileUrl(self.type)
+        weightsUrl = FileManager.getTrainedModelWeightsFileUrl(self.type)
+
+        self.model = None
+        self.model = load_model(modelUrl)
+        self.model.load_weights(weightsUrl)
+
+        return self
 
     def exportTrainedModel(self):
-        url = FileManager.getTrainedModelFileUrl(self.type)
-        self.model.save(os.path.join(url))
-        self.model.save_weights(url)
+        modelUrl = FileManager.getTrainedModelFileUrl(self.type)
+        weightsUrl = FileManager.getTrainedModelWeightsFileUrl(self.type)
+        self.model.save(modelUrl)
+        self.model.save_weights(weightsUrl)
+
+        return self
 
     # #####################################################################
     # #####################################################################
