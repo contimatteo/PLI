@@ -1,7 +1,7 @@
 # /usr/bin/env python3
 
 import os
-from .base_tensorflow import _TensorflowAlgorithm
+from ._tensorflow import _TensorflowAlgorithm
 from utils import ConfigurationManager, FileManager
 from utils import FileManager
 import pandas as pd
@@ -16,7 +16,6 @@ from keras.layers.recurrent import LSTM
 from sklearn.model_selection import train_test_split
 import os
 import numpy as np
-import keras.preprocessing.text as kpt
 
 #
 
@@ -127,31 +126,38 @@ class CNN(_TensorflowAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it.')
 
-        self.model = None
-
         # configs
         matched = 0
         totalExamples = 0
         input_length: int = self.config['max_len_sequences']
 
+        #
+        # PREPARE FEATURES
+        #
+
         # preparing features
         languages = ConfigurationManager.getLanguages()
-        codeArchive, Y_raw, = self.__prepareFeatures('testing')
+        codeArchive, Y_raw = self.__prepareFeatures('testing')
 
         # import words indexes
         wordsIndexes = self.importWordsIndexes()
         # import trained model
         self.importTrainedModel()
 
+        #
+        # TESTING
+        #
+
         for index, exampleSourceCode in enumerate(codeArchive):
             totalExamples += 1
 
             # tokenization
-            word_vec = self.__generateWordsIndexesForUnknownExample(wordsIndexes, exampleSourceCode)
-            X_test = pad_sequences([word_vec], maxlen=input_length)
+            word_vec = self.generateWordsIndexesForUnknownExample(wordsIndexes, exampleSourceCode)
+            X = pad_sequences([word_vec], maxlen=input_length)
+            X = X[0].reshape(1, X.shape[1])
 
             # predict
-            y_prob = self.model.predict(X_test[0].reshape(1, X_test.shape[1]), batch_size=1, verbose=2)[0]
+            y_prob = self.model.predict(X, batch_size=1, verbose=2)[0]
 
             # match language prediction
             a = np.array(y_prob)
@@ -160,24 +166,6 @@ class CNN(_TensorflowAlgorithm):
                 matched += 1
 
         print('')
-        print('> [testing] number of total examples = ' + str(totalExamples))
-        print('> [testing] examples matched = ' + str(matched))
-        print('> [testing] % success (matched/totalExamples) = ' + str(matched / totalExamples))
-
-    def __generateWordsIndexesForUnknownExample(self, wordsIndexes, source: str):
-        wordvec = []
-        max_features: int = self.config['max_features']
-
-        # one really important thing that `text_to_word_sequence` does
-        # is make all texts the same length -- in this case, the length
-        # of the longest text in the set.
-        for word in kpt.text_to_word_sequence(source):
-            if word in wordsIndexes:
-                if wordsIndexes[word] <= max_features:
-                    wordvec.append([wordsIndexes[word]])
-                else:
-                    wordvec.append([0])
-            else:
-                wordvec.append([0])
-
-        return wordvec
+        print(' > [testing] ==> number of total examples = ' + str(totalExamples))
+        print(' > [testing] ==> examples matched = ' + str(matched))
+        print(' > [testing] ==> % success (matched/totalExamples) = ' + str(matched / totalExamples))

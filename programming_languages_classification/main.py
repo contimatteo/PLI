@@ -7,6 +7,8 @@ if __name__ == "__main__":
     print('')
     Solver = ProblemSolver()
 
+    # ###################################################
+
     # initialize
     print(' > [setup] Initialization ...')
     Solver.initialize()
@@ -17,12 +19,35 @@ if __name__ == "__main__":
     Solver.loadDataset()
     print('')
 
-    # training
-    print(' > [training] ==> CNN training execution ...')
-    Solver.train('CNN')
+    # ###################################################
+
+    # SVM training
+    print(' > [training] ==> SVM training execution ...')
+    Solver.train('SVM')
+
+    # SVM testing
+    print(' > [testing] ==> SVM algorithm execution ...')
+    Solver.test('SVM')
     print('')
 
-    # testing
+    # ###################################################
+
+    # NaiveBayes training
+    print(' > [training] ==> BAYES training execution ...')
+    Solver.train('BAYES')
+
+    # NaiveBayes testing
+    print(' > [testing] ==> BAYES algorithm execution ...')
+    Solver.test('BAYES')
+    print('')
+
+    # ###################################################
+
+    # CNN training
+    print(' > [training] ==> CNN training execution ...')
+    Solver.train('CNN')
+
+    # CNN testing
     print(' > [testing] ==> CNN algorithm execution ...')
     Solver.test('CNN')
     print('')

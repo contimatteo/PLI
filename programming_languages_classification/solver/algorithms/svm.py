@@ -1,8 +1,8 @@
 # /usr/bin/env python3
 
 import os
-from sklearn import naive_bayes
 from ._scikit import _ScikitLearnAlgorithm
+from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
 from keras.preprocessing.text import Tokenizer
@@ -15,11 +15,11 @@ MODEL_CONFIG: dict = {
 }
 
 
-class NaiveBayes(_ScikitLearnAlgorithm):
+class SVM(_ScikitLearnAlgorithm):
 
     def __init__(self):
         super().__init__()
-        self.type = 'BAYES'
+        self.type = 'SVM'
         self.config = MODEL_CONFIG.copy()
 
     def __prepareFeatures(self, dataset: str, encodeLanguagesLabels=True):
@@ -43,7 +43,7 @@ class NaiveBayes(_ScikitLearnAlgorithm):
         return raw_X, raw_Y
 
     def __prepareModel(self):
-        self.model = naive_bayes.GaussianNB()
+        self.model = svm.SVC()
         return self
 
     def train(self):
@@ -130,8 +130,8 @@ class NaiveBayes(_ScikitLearnAlgorithm):
                 matched += 1
 
         print('')
-        print(' > [testing] ==> number of total examples = ' + str(totalExamples))
-        print(' > [testing] ==> examples matched = ' + str(matched))
-        print(' > [testing] ==> % success (matched/totalExamples) = ' + str(matched / totalExamples))
+        print(' > [testing]  ==> number of total examples = ' + str(totalExamples))
+        print(' > [testing]  ==> examples matched = ' + str(matched))
+        print(' > [testing]  ==> % success (matched/totalExamples) = ' + str(matched / totalExamples))
 
         return self

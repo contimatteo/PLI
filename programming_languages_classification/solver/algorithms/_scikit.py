@@ -1,43 +1,20 @@
 # /usr/bin/env python3
 
-import os
-from keras.models import load_model
-import json
+from ._base import _BaseAlgorithm
 from utils import FileManager
-from dataset import DatasetInstance
+import joblib
 
 
-class _TensorflowAlgorithm:
-    type: str = 'MISSING'
-    dataset: DatasetInstance = None
-    model: None
-    config: dict = {}
-
-    def initialize(self, datasetInstance: DatasetInstance):
-        self.dataset = datasetInstance
-        return self
-
-    # #####################################################################
-    # #####################################################################
-
-    def importWordsIndexes(self):
-        return json.loads(FileManager.readFile(FileManager.getWordsIndexesFileUrl(self.type)))
-
-    def exportWordsIndexes(self, indexes):
-        FileManager.writeFile(FileManager.getWordsIndexesFileUrl(self.type), json.dumps(indexes))
-        return self
+class _ScikitLearnAlgorithm(_BaseAlgorithm):
 
     def importTrainedModel(self):
         self.model = None
-        self.model = load_model(FileManager.getTrainedModelFileUrl(self.type))
+        self.model = joblib.load(FileManager.getTrainedModelFileUrl(self.type))
         return self
 
     def exportTrainedModel(self):
-        self.model.save(FileManager.getTrainedModelFileUrl(self.type))
+        joblib.dump(self.model, FileManager.getTrainedModelFileUrl(self.type))
         return self
-
-    # #####################################################################
-    # #####################################################################
 
     # def prepareTraining(self):
     #     languagesFeaturesFileContents: dict = {}
