@@ -4,7 +4,7 @@ import os
 from .base import _Network
 from sklearn import svm
 from sklearn import preprocessing
-from configurations import ConfigurationManager
+from utils import ConfigurationManager, FileManager
 
 
 class SvmNetwork(_Network):
@@ -14,7 +14,7 @@ class SvmNetwork(_Network):
         self.type = 'SVM'
 
     def train(self):
-        if os.path.exists(self.getTrainedModelFileUri()):
+        if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
 
         # preparing training data
@@ -32,7 +32,7 @@ class SvmNetwork(_Network):
         self.exportTrainedModel(model)
 
     def test(self):
-        if not os.path.exists(self.getTrainedModelFileUri()):
+        if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
         # preparing testing data
@@ -57,9 +57,7 @@ class SvmNetwork(_Network):
             if predictedLanguage == y[index]:
                 matched += 1
 
-        print('')
-        print(' > [results] % matched ==> ' + str(matched / len(predictions)))
-        print('')
+        print(' > [testing] ==> ' + self.type + ' (% matched) = ' + str(matched / len(predictions)))
 
 
 

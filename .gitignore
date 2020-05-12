@@ -137,4 +137,5 @@ dmypy.json
 # VS-Code
 .vscode
 
+# formatter config
 .pydocstyle
