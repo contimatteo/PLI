@@ -1,28 +1,42 @@
 # /usr/bin/env python3
 
-from dataset_loader import DatasetLoader
-from .networks.svn import SvnNetwork
-from .networks.ccn import CcnNetwork
-from .networks.bayes import BayesNetwork
+from dataset import DatasetManager
+from .algorithms.svm import SVM
+from .algorithms.cnn import CNN
+from .algorithms.bayes import NaiveBayes
 
 
 class ProblemSolver:
 
-    def __init__(self):
-        self.DatasetInstance = DatasetLoader()
-        self.Networks = {}
+    DatasetManager: DatasetManager = None
+    Algorithms: dict = {'CNN': None, 'SVM': None, 'BAYES': None}
 
-        self.Networks['SVN'] = SvnNetwork()
-        self.Networks['CCN'] = CcnNetwork()
-        self.Networks['BAYES'] = BayesNetwork()
+    def initialize(self):
+        # dataset
+        self.DatasetManger = DatasetManager()
+
+        # CNN Algorithm
+        self.Algorithms['CNN'] = CNN()
+        self.Algorithms['CNN'].initialize(self.DatasetManger.Dataset)
+
+        # SVM Algorithm
+        self.Algorithms['SVM'] = SVM()
+        self.Algorithms['SVM'].initialize(self.DatasetManger.Dataset)
+
+        # BAYES Algorithm
+        self.Algorithms['BAYES'] = NaiveBayes()
+        self.Algorithms['BAYES'].initialize(self.DatasetManger.Dataset)
+
+        return self
 
     def loadDataset(self):
-        self.DatasetInstance.load()
+        self.DatasetManger.initialize().load()
+        return self
 
-    def train(self, networkType):
-        if networkType == 'SVN':
-            return self.Networks['SVN'].train()
-        elif networkType == 'CCN':
-            return self.Networks['CCN'].train()
-        else:
-            return self.Networks['BAYES'].train()
+    def train(self, algorithm):
+        self.Algorithms[algorithm].train()
+        return self
+
+    def test(self, algorithm):
+        self.Algorithms[algorithm].test()
+        return self

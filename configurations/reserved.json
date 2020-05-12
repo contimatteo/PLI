@@ -1,0 +1,25 @@
+{
+  "words": [
+    "catch",
+    "class",
+    "echo",
+    "else",
+    "end",
+    "defmodule",
+    "package",
+    "for",
+    "func",
+    "function",
+    "global",
+    "if",
+    "import",
+    "procedure",
+    "return",
+    "static",
+    "struct",
+    "try",
+    "var",
+    "with",
+    "while"
+  ]
+}

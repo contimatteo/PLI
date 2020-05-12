@@ -1,1 +1,9 @@
-datasets/
+
+training/*
+testing/*
+
+models/*
+!models/.gitkeep
+
+words-indexes/*
+!words-indexes/.gitkeep
