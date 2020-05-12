@@ -1,64 +1,42 @@
 # /usr/bin/env python3
 
 from dataset import DatasetManager
-from features import FeaturesManager
-from .networks.bayes import BayesNetwork
-from .networks.svm import SvmNetwork
-from utils import FileManager
+from .algorithms.svm import SVM
+from .algorithms.cnn import CNN
+from .algorithms.bayes import NaiveBayes
 
 
 class ProblemSolver:
 
-    def __init__(self):
-        # tokenizer
-        self.FeaturesExtractor = FeaturesManager()
-        # dataset
-        self.DatasetManger = DatasetManager()
-        # networks
-        self.Networks = {'BAYES': BayesNetwork(), 'SVM': SvmNetwork()}
+    DatasetManager: DatasetManager = None
+    Algorithms: dict = {'CNN': None, 'SVM': None, 'BAYES': None}
 
     def initialize(self):
-        trainingConfig = FileManager.datasets['training']
-        testingConfig = FileManager.datasets['testing']
-        # networks
-        self.Networks['BAYES'].initialize(trainingConfig, testingConfig)
-        self.Networks['SVM'].initialize(trainingConfig, testingConfig)
+        # dataset
+        self.DatasetManger = DatasetManager()
+
+        # CNN Algorithm
+        self.Algorithms['CNN'] = CNN()
+        self.Algorithms['CNN'].initialize(self.DatasetManger.Dataset)
+
+        # SVM Algorithm
+        self.Algorithms['SVM'] = SVM()
+        self.Algorithms['SVM'].initialize(self.DatasetManger.Dataset)
+
+        # BAYES Algorithm
+        self.Algorithms['BAYES'] = NaiveBayes()
+        self.Algorithms['BAYES'].initialize(self.DatasetManger.Dataset)
+
+        return self
 
     def loadDataset(self):
-        self.DatasetManger.load()
+        self.DatasetManger.initialize().load()
+        return self
 
-    def prepare(self, networkType, datasetUri):
-        # feature extractor initialization
-        self.FeaturesExtractor.initialize(networkType, datasetUri)
-        # features pre-processing
-        print(' > [training] ==> start pre-processing ...')
-        self.FeaturesExtractor.parse()
-        # features extraction
-        print(' > [training] ==> start features extraction ...')
-        self.FeaturesExtractor.generateFeatures()
+    def train(self, algorithm):
+        self.Algorithms[algorithm].train()
+        return self
 
-    def train(self, networkType):
-        # feature extractor initialization
-        self.FeaturesExtractor.initialize(networkType, FileManager.datasets['training']['url'])
-        # features pre-processing
-        print(' > [training] ==> start pre-processing ...')
-        self.FeaturesExtractor.parse()
-        # features extraction
-        print(' > [training] ==> start features extraction ...')
-        self.FeaturesExtractor.generateFeatures(calculateWordsFrequency=True)
-        # train
-        print(' > [training] ==> ' + networkType + ' training ...')
-        return self.Networks[networkType].train()
-
-    def test(self, networkType):
-        # feature extractor initialization
-        self.FeaturesExtractor.initialize(networkType, FileManager.datasets['testing']['url'])
-        # features pre-processing
-        print(' > [testing] ==> start pre-processing ...')
-        self.FeaturesExtractor.parse()
-        # features extraction
-        print(' > [testing] ==> start features extraction ...')
-        self.FeaturesExtractor.generateFeatures(calculateWordsFrequency=False)
-        # test
-        print(' > [testing] ==> ' + networkType + ' testing ...')
-        return self.Networks[networkType].test()
+    def test(self, algorithm):
+        self.Algorithms[algorithm].test()
+        return self

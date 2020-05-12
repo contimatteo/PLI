@@ -4,18 +4,20 @@ import os
 import sys
 
 
-
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
 SOURCE_FOLDER: str = "../datasets/rosetta-code/Lang"
 DESTINATION_FOLDER: str = "data"
 TRAINING_FOLDER: str = 'training'
 TESTING_FOLDER: str = 'testing'
+WORDS_INDEXES_FOLDER: str = 'words-indexes'
+MODELS_FOLDER: str = 'models'
+
 
 FILE_NAMES: dict = {
-    'ORIGINAL': 'original.txt',
-    'PARSED': 'parsed.txt',
-    'FEATURES': 'features.json',
-    'DICTIONARY': 'dictionary.json',
+    'ORIGINAL': 'original',
+    'PARSED': 'parsed',
+    'FEATURES': 'features',
+    'SOURCE_MAP': 'map',
 }
 
 
@@ -32,24 +34,25 @@ class FileManagerClass:
         return self
 
     def getOriginalFileUrl(self, exampleFolderPath):
-        return exampleFolderPath + '/' + FILE_NAMES['ORIGINAL']
+        return exampleFolderPath + '/' + FILE_NAMES['ORIGINAL'] + '.txt'
 
     def getParsedFileUrl(self, exampleFolderPath):
-        return exampleFolderPath + '/' + FILE_NAMES['PARSED']
+        return exampleFolderPath + '/' + FILE_NAMES['PARSED'] + '.txt'
 
-    def getDictionaryFileUrl(self, exampleFolderPath):
-        return exampleFolderPath + '/' + FILE_NAMES['DICTIONARY']
+    def getMapFileUrl(self, exampleFolderPath):
+        return exampleFolderPath + '/' + FILE_NAMES['SOURCE_MAP'] + '.json'
 
     def getFeaturesMapFileUrl(self, languageFolder):
-        return languageFolder + '/' + FILE_NAMES['FEATURES']
+        return languageFolder + '/' + FILE_NAMES['FEATURES'] + '.json'
 
-    def getEncoderLabelsFileUrl(self, networkType: str):
-        labelEncoderFileName = networkType.lower() + '-encoded-labels.json'
-        return os.path.join(self.datasets['training']['url'], *['../', labelEncoderFileName])
+    def getWordsIndexesFileUrl(self, algorithm: str, axis: str = 'x'):
+        name: str = axis + '-' + algorithm.lower() + '.json'
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER, name])
 
-    def getTrainedModelFileUrl(self, networkType: str):
-        modelExportFileName: str = networkType.lower() + '.joblib'
-        return os.path.join(self.datasets['training']['url'], *['../', modelExportFileName])
+    def getTrainedModelFileUrl(self, algorithm: str):
+        extension = self.__getModelFileExtensionByAlgorithm(algorithm)
+        name: str = algorithm.lower() + '.' + extension
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
 
     def readFile(self, url):
         file = open(url, 'r')
@@ -75,6 +78,20 @@ class FileManagerClass:
 
     def getExampleFiles(self, exampleFolderUrl: str):
         return [f for f in os.scandir(exampleFolderUrl) if f.is_file()]
+
+    def getRootUrl(self):
+        return ROOT_DIR
+
+    #
+
+    def __getModelFileExtensionByAlgorithm(self, algorithm: str):
+        algorithm = algorithm.lower()
+
+        # Scikit-Learn: SVM + NaiveBayes
+        if algorithm == 'svm' or algorithm == 'naive-bayes':
+            return 'joblib'
+        # Tensorflow: CNN
+        return 'h5'
 
 ##
 
