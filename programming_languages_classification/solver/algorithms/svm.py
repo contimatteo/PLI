@@ -5,10 +5,13 @@ from ._scikit import _ScikitLearnAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
+import keras
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
 
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
+TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
     'max_features': 100000,
     'max_len_sequences': 100
@@ -34,7 +37,12 @@ class SVM(_ScikitLearnAlgorithm):
 
         for language in self.dataset.getSources(dataset):
             for exampleDict in sources[language]:
-                raw_X.append(exampleDict['original'])
+                # replace 'aplha' and 'numeric' chars
+                parsedFileContent = str(exampleDict['parsed'])
+                parsedFileContent = parsedFileContent.replace(ESCAPED_TOKENS['NUMBER'], '')
+                parsedFileContent = parsedFileContent.replace(ESCAPED_TOKENS['ALPHA'], '')
+                # add the parsed file content raw/encoded
+                raw_X.append(parsedFileContent)
                 if encodeLanguagesLabels:
                     raw_Y.append(Y_Encoder.transform([language])[0])
                 else:
@@ -61,8 +69,9 @@ class SVM(_ScikitLearnAlgorithm):
         codeArchive, languages, = self.__prepareFeatures('training', True)
 
         # tokenization
-        tokenizer = Tokenizer(num_words=max_features)
+        tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
         tokenizer.fit_on_texts(codeArchive)
+
         # (X, Y) creation
         X = tokenizer.texts_to_sequences(codeArchive)
         X = pad_sequences(X, maxlen=input_length)

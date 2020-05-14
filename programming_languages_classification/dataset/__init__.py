@@ -1,4 +1,4 @@
 # /usr/bin/env python3
 
-from .manager import DatasetManager
-from .instance import DatasetInstance
+from .main import DatasetManager
+from ._instance import DatasetInstance

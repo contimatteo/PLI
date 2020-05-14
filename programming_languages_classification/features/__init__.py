@@ -1,3 +1,4 @@
 # /usr/bin/env python3
 
-from .manager import FeaturesManager
+from ._manager import FeaturesManager
+from .parser import Parser

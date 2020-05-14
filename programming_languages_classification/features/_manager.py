@@ -3,7 +3,7 @@
 import os
 import json
 from .parser import Parser
-from .dictionary import DictionaryGenerator
+from ._dictionary import DictionaryGenerator
 from utils import ConfigurationManager, FileManager
 
 FEATURE_FREQUENCY_THRESHOLD: int = ConfigurationManager.configuration['FEATURE_FREQUENCY_THRESHOLD']

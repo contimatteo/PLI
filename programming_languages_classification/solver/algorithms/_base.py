@@ -4,6 +4,10 @@ import json
 from utils import FileManager
 from dataset import DatasetInstance
 import keras.preprocessing.text as kpt
+from utils import ConfigurationManager
+
+
+TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 
 
 class _BaseAlgorithm:
@@ -35,7 +39,7 @@ class _BaseAlgorithm:
         # one really important thing that `text_to_word_sequence` does
         # is make all texts the same length -- in this case, the length
         # of the longest text in the set.
-        for word in kpt.text_to_word_sequence(source):
+        for word in kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']):
             if word in wordsIndexes:
                 if wordsIndexes[word] <= max_features:
                     wordvec.append([wordsIndexes[word]])

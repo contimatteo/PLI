@@ -6,7 +6,7 @@ import sys
 
 ROOT_DIR: str = os.path.abspath(os.path.dirname(sys.argv[0]))
 SOURCE_FOLDER: str = "../datasets/rosetta-code/Lang"
-DESTINATION_FOLDER: str = "data"
+DESTINATION_FOLDER: str = "tmp"
 TRAINING_FOLDER: str = 'training'
 TESTING_FOLDER: str = 'testing'
 WORDS_INDEXES_FOLDER: str = 'words-indexes'
@@ -47,12 +47,12 @@ class FileManagerClass:
 
     def getWordsIndexesFileUrl(self, algorithm: str, axis: str = 'x'):
         name: str = axis + '-' + algorithm.lower() + '.json'
-        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER, name])
+        return os.path.join(self.getWordsIndexesFolderUrl(), name)
 
     def getTrainedModelFileUrl(self, algorithm: str):
         extension = self.__getModelFileExtensionByAlgorithm(algorithm)
         name: str = algorithm.lower() + '.' + extension
-        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER, name])
+        return os.path.join(self.getModelsFolderUrl(), name)
 
     def readFile(self, url):
         file = open(url, 'r')
@@ -81,6 +81,12 @@ class FileManagerClass:
 
     def getRootUrl(self):
         return ROOT_DIR
+
+    def getModelsFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER])
+
+    def getWordsIndexesFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER])
 
     #
 

@@ -1,7 +1,7 @@
 # /usr/bin/env python3
 
 import json
-import nltk
+# import nltk
 from utils import ConfigurationManager
 
 
