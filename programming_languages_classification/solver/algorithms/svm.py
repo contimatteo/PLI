@@ -5,19 +5,16 @@ from ._scikit import _ScikitLearnAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score
 import keras.preprocessing.text as kpt
-from collections import Counter
 import math
 import json
 
+
 ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
-MODEL_CONFIG: dict = {
-    'max_features': 10000,
-    'max_len_sequences': 100
+CONFIG: dict = {
+    'number_of_tokens_for_language': 20
 }
 
 
@@ -26,37 +23,25 @@ class SVM(_ScikitLearnAlgorithm):
     def __init__(self):
         super().__init__()
         self.type = 'SVM'
-        self.config = MODEL_CONFIG.copy()
+        self.config = CONFIG.copy()
 
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
-
-        max_features: int = self.config['max_features']
-        input_length: int = self.config['max_len_sequences']
 
         #
         # PREPARE FEATURES
         #
 
         # preparing features
-        # codeArchive, languages = self.__extractSources('training')
         X, languages = self.__prepareFeatures('training')
 
-        # tokenization
-        # tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
-        # tokenizer.fit_on_texts(codeArchive)
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
         # (X, Y) creation
-        # X = tokenizer.texts_to_sequences(codeArchive)
-        # X = pad_sequences(X, maxlen=input_length)
         Y = Y_Encoder.transform(languages)
-
-        # export words indexes
-        # self.exportWordsIndexes(tokenizer.word_index)
 
         #
         # TRAINING
@@ -75,19 +60,13 @@ class SVM(_ScikitLearnAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        # configs
-        input_length: int = self.config['max_len_sequences']
-
         #
         # PREPARE FEATURES
         #
 
         # preparing features
-        # sourcesToPredict, languages = self.__extractSources('testing')
         X, languages = self.__prepareFeatures('testing')
 
-        # import words indexes
-        # wordsIndexes = self.importWordsIndexes()
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
@@ -101,15 +80,6 @@ class SVM(_ScikitLearnAlgorithm):
 
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
-
-        # for source in sourcesToPredict:
-        #     # tokenization (with unknown tokens)
-        #     word_vec = self.generateWordsIndexesForUnknownExample(wordsIndexes, source)
-        #     # convert 'tokens' to indexes
-        #     X = pad_sequences([word_vec], maxlen=input_length)
-        #     # model prediction
-        #     prediction = self.model.predict(X[0].reshape(1, X.shape[1]))[0]
-        #     Y_predicted.append(prediction)
 
         accuracy = accuracy_score(Y_real, Y_predicted)
         print(' >  [testing] SVM: algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
@@ -139,8 +109,7 @@ class SVM(_ScikitLearnAlgorithm):
         return X_raw, Y_raw
 
     def __calculateTokensEntropyLoss(self, dataset: str):
-        featuresFileUri = os.path.join(FileManager.getTmpFolderUrl(), 'features/svm.json')
-        if os.path.exists(featuresFileUri):
+        if os.path.exists(FileManager.getFeaturesFileUrl(self.type)):
             return self
 
         sources, languages = self.__extractSources(dataset)
@@ -183,6 +152,7 @@ class SVM(_ScikitLearnAlgorithm):
         languageFeatures = {}
         tokensEntropyLoss: dict = {}
         numberOfExamples = self.dataset.countExamples(dataset)
+        N_OF_TOKENS_FOR_LANGUAGE: int = self.config['number_of_tokens_for_language']
 
         for language in ConfigurationManager.getLanguages():
             tokensEntropyLoss[language] = {}
@@ -217,22 +187,22 @@ class SVM(_ScikitLearnAlgorithm):
                 tokensEntropyLoss[language][token] = e - (e_f * pr_f) + (e_not_f * (1 - pr_f))
 
             # sort entropy values by desc order
-            tokensEntropyLoss[language] = {k: v for k, v in sorted(
-                tokensEntropyLoss[language].items(), key=lambda item: item[1])
-                                           }
+            tokensEntropyLoss[language] = {
+                k: v for k, v in sorted(tokensEntropyLoss[language].items(), key=lambda item: item[1])
+            }
             # take first n tokens
-            languageFeatures[language] = list(tokensEntropyLoss[language].keys())[:20]
+            languageFeatures[language] = list(tokensEntropyLoss[language].keys())[:N_OF_TOKENS_FOR_LANGUAGE]
 
         # export tokens with maximum entropy loss
-        FileManager.writeFile(featuresFileUri, json.dumps(languageFeatures))
+        FileManager.writeFile(FileManager.getFeaturesFileUrl(self.type), json.dumps(languageFeatures))
 
         return self
 
     def __prepareFeatures(self, dataset: str):
-        # get features file
+        # find or create the features file
         self.__calculateTokensEntropyLoss(dataset)
-        featuresFileUri = os.path.join(FileManager.getTmpFolderUrl(), 'features/svm.json')
-        languageFeatures = json.loads(FileManager.readFile(featuresFileUri))
+        # get features file
+        languageFeatures = json.loads(FileManager.readFile(FileManager.getFeaturesFileUrl(self.type)))
 
         X = []
         Y = []

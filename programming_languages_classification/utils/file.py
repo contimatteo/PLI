@@ -11,12 +11,12 @@ TRAINING_FOLDER: str = 'training'
 TESTING_FOLDER: str = 'testing'
 WORDS_INDEXES_FOLDER: str = 'words-indexes'
 MODELS_FOLDER: str = 'models'
+FEATURES_FOLDER = 'features'
 
 
 FILE_NAMES: dict = {
     'ORIGINAL': 'original',
     'PARSED': 'parsed',
-    'FEATURES': 'features',
     'SOURCE_MAP': 'map',
 }
 
@@ -42,8 +42,9 @@ class FileManagerClass:
     def getMapFileUrl(self, exampleFolderPath):
         return exampleFolderPath + '/' + FILE_NAMES['SOURCE_MAP'] + '.json'
 
-    def getFeaturesMapFileUrl(self, languageFolder):
-        return languageFolder + '/' + FILE_NAMES['FEATURES'] + '.json'
+    def getFeaturesFileUrl(self, algorithm: str):
+        fileName = algorithm + '.json'
+        return os.path.join(self.getFeaturesFolderUrl(), fileName)
 
     def getWordsIndexesFileUrl(self, algorithm: str, axis: str = 'x'):
         name: str = axis + '-' + algorithm.lower() + '.json'
@@ -90,6 +91,9 @@ class FileManagerClass:
 
     def getWordsIndexesFolderUrl(self):
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER])
+
+    def getFeaturesFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, FEATURES_FOLDER])
 
     #
 

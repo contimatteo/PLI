@@ -48,6 +48,9 @@ class DatasetManager:
 
         # initialize output folders
 
+        if not os.path.isdir(FileManager.getFeaturesFolderUrl()):
+            os.mkdir(FileManager.getFeaturesFolderUrl())
+
         if not os.path.isdir(FileManager.getModelsFolderUrl()):
             os.mkdir(FileManager.getModelsFolderUrl())
 
