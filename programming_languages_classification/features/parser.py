@@ -1,13 +1,13 @@
 # /usr/bin/env python3
 
-import os
 import re as regex
-import nltk
-from configurations import ConfigurationManager
+from utils import ConfigurationManager
+from keras.preprocessing.text import text_to_word_sequence
 
 
 RESERVED_WORDS: list = ConfigurationManager.getReservedWords()
-ESCAPED_TOKENS = ConfigurationManager.getEscapedTokens()
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
+TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 
 
 class Parser:
@@ -41,12 +41,12 @@ class Parser:
 
     def _splitAlphaAndNumericChars(self, line: str):
         # word tokenization
-        words: list = [str(x) for x in nltk.word_tokenize(line)]
+        words = [str(x) for x in text_to_word_sequence(line, filters=TOKENIZER_CONFIG['filter'])]
         # analyze each word
         for ix, w in enumerate(words):
             # remove single and multiple spaces
             words[ix] = self._removeMultipleSpacesFrom(w)
-            words[ix].replace(' ', '')
+            words[ix] = words[ix].replace(' ', '')
 
         return ' '.join(words)
 
@@ -58,6 +58,7 @@ class Parser:
         words: list = line.split(' ')
         # analyze each word
         for ix, w in enumerate(words):
+            w = w.replace(' ', '')
             if regex.match("^[0-9]*$", w): # this word contains only numbers?
                 words[ix] = ESCAPED_TOKENS['NUMBER']
 
@@ -85,7 +86,7 @@ class Parser:
       
         # PARSING
         # init the parsed file content
-        parsedContent += ESCAPED_TOKENS['FILE_BEGIN'] + ' '
+        # parsedContent += ESCAPED_TOKENS['FILE_BEGIN'] + ' '
         # parse each line ...
         for line in originalFile:
             parsedLine: str = ""
@@ -102,12 +103,12 @@ class Parser:
                 # replace ALPHA chars
                 parsedLine = self._replaceAlphaCharacters(parsedLine)
                 # replace NEW LINE char
-                parsedLine += ' ' + ESCAPED_TOKENS['NEW_LINE'] + ' '
+                # parsedLine += ' ' + ESCAPED_TOKENS['NEW_LINE'] + ' '
                 # add line to final parsed content
-                parsedContent += parsedLine + ' '
+                parsedContent += parsedLine + '\n'
 
         # end the parsed file content
-        parsedContent += ' ' + ESCAPED_TOKENS['FILE_END']
+        # parsedContent += ' ' + ESCAPED_TOKENS['FILE_END']
         # write parsed file
         parsedFile.write(parsedContent)
 

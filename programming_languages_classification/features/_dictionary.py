@@ -1,11 +1,11 @@
 # /usr/bin/env python3
 
 import json
-import nltk
-from configurations import ConfigurationManager
+# import nltk
+from utils import ConfigurationManager
 
 
-ESCAPED_TOKENS = ConfigurationManager.getEscapedTokens()
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 
 
 class DictionaryGenerator:
@@ -39,14 +39,14 @@ class DictionaryGenerator:
         for idx, wrd in enumerate(tokens):
             if idx + 1 < tokensCount:
                 token = wrd + ' ' + tokens[idx + 1]
-                if ESCAPED_TOKENS['ALPHA'] not in token and ESCAPED_TOKENS['NUMBER'] not in token:
-                    words.add(token)
+                # if ESCAPED_TOKENS['ALPHA'] not in token and ESCAPED_TOKENS['NUMBER'] not in token:
+                words.add(token)
         # generating unique '3N-word' set
         for idx, wrd in enumerate(tokens):
             if idx + 2 < tokensCount:
                 token = wrd + ' ' + tokens[idx + 1] + ' ' + tokens[idx + 2]
-                if ESCAPED_TOKENS['ALPHA'] not in token and ESCAPED_TOKENS['NUMBER'] not in token:
-                    words.add(token)
+                # if ESCAPED_TOKENS['ALPHA'] not in token and ESCAPED_TOKENS['NUMBER'] not in token:
+                words.add(token)
         # write the dictionary
         dictionaryContent: dict = {'words': sorted(words)}
         dictionaryFile.write(json.dumps(dictionaryContent))
