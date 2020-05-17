@@ -82,6 +82,9 @@ class FileManagerClass:
     def getRootUrl(self):
         return ROOT_DIR
 
+    def getTmpFolderUrl(self):
+        return os.path.join(ROOT_DIR, DESTINATION_FOLDER)
+
     def getModelsFolderUrl(self):
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER])
 

@@ -81,7 +81,7 @@ class DatasetManager:
 
                 # print languages with examples counter less than {TRAINING_EXAMPLES_NUMBER}
                 if languagesExamplesCounter[language] < TRAINING_EXAMPLES_NUMBER:
-                    print(' > [dataset] the total number of examples for the '
+                    print(' >  [dataset] the total number of examples for the '
                           + language + ' is less than ' + str(TRAINING_EXAMPLES_NUMBER))
                     continue
 
