@@ -112,11 +112,11 @@ class DatasetManager:
                         FileManager.createFile(originalFileUri)
                         shutil.copyfile(exampleVersionFile.path, originalFileUri)
                         # create the  'PARSED' version of the orginal file
-                        # parsedFileUri = FileManager.getParsedFileUrl(exampleFolderUri)
-                        # FileManager.createFile(parsedFileUri)
-                        # parser = Parser()
-                        # parser.initialize(originalFileUri, parsedFileUri)
-                        # parser.parse()
+                        parsedFileUri = FileManager.getParsedFileUrl(exampleFolderUri)
+                        FileManager.createFile(parsedFileUri)
+                        parser = Parser()
+                        parser.initialize(originalFileUri, parsedFileUri)
+                        parser.parse()
 
         return self
 
@@ -136,9 +136,9 @@ class DatasetManager:
                 originalFileContent = FileManager.readFile(originalFileUri)
                 exampleDict['original'] = originalFileContent
                 # parsed file
-                # parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
-                # parsedFileContent = FileManager.readFile(parsedFileUri)
-                # exampleDict['parsed'] = parsedFileContent
+                parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
+                parsedFileContent = FileManager.readFile(parsedFileUri)
+                exampleDict['parsed'] = parsedFileContent
                 # save
                 self.Dataset.addExample('training', language, exampleDict)
 
@@ -154,9 +154,9 @@ class DatasetManager:
                 originalFileContent = FileManager.readFile(originalFileUri)
                 exampleDict['original'] = originalFileContent
                 # parsed file
-                # parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
-                # parsedFileContent = FileManager.readFile(parsedFileUri)
-                # exampleDict['parsed'] = parsedFileContent
+                parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
+                parsedFileContent = FileManager.readFile(parsedFileUri)
+                exampleDict['parsed'] = parsedFileContent
                 # save
                 self.Dataset.addExample('testing', language, exampleDict)
 

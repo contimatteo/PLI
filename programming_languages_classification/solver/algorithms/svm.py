@@ -9,7 +9,8 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score
 import keras.preprocessing.text as kpt
-
+from collections import Counter
+import math
 
 ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
@@ -39,7 +40,9 @@ class SVM(_ScikitLearnAlgorithm):
 
         # preparing features
         codeArchive, languages = self.__extractSources('training')
-        # self.__prepareFeatures('training')
+        self.__prepareFeatures('training')
+
+        raise Exception('stop')
 
         # tokenization
         tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
@@ -138,17 +141,10 @@ class SVM(_ScikitLearnAlgorithm):
         return raw_X, raw_Y
 
     def __prepareFeatures(self, dataset: str):
-        raw_X = []
-        raw_Y = []
+        codeArchive = []
+        languages = []
 
         sources: dict = self.dataset.getSources(dataset)
-
-        print('')
-        print(self.dataset.countExamples('training'))
-        print(self.dataset.countExamples('testing'))
-        print('')
-        print(self.dataset.getCounters(dataset))
-        print('')
 
         # preparing Y (languages) label encoder
         Y_Encoder = preprocessing.LabelEncoder()
@@ -156,18 +152,97 @@ class SVM(_ScikitLearnAlgorithm):
 
         for language in self.dataset.getSources(dataset):
             for exampleDict in sources[language]:
-                raw_X.append(str(exampleDict['original']))
-                raw_Y.append(Y_Encoder.transform([language])[0])
+                # X
+                codeArchive.append(
+                    str(exampleDict['parsed'])
+                        .replace(ESCAPED_TOKENS['ALPHA'], '')
+                        .replace(ESCAPED_TOKENS['NUMBER'], '')
+                )
+                # Y
+                languages.append(language)
 
+        withTokensOccurencyMap: dict = {}
+        withoutTokensOccurencyMap: dict = {}
 
-        features = []
-        numberOfExamples = int(self.dataset.getCounters(dataset))
+        for index, source in enumerate(codeArchive):
+            language = languages[index]
+            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            for token in tokens:
+                if token not in withTokensOccurencyMap:
+                    withTokensOccurencyMap[token] = []
+                withTokensOccurencyMap[token].append(language)
 
-        for language in self.dataset.getSources(dataset):
-            for exampleDict in sources[language]:
-                source = str(exampleDict['original'])
-                tokens = kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter'])
+        for index, source in enumerate(codeArchive):
+            language = languages[index]
+            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            for token in withTokensOccurencyMap:
+                if token not in tokens:
+                    if token not in withoutTokensOccurencyMap:
+                        withoutTokensOccurencyMap[token] = []
+                    withoutTokensOccurencyMap[token].append(language)
 
-        return raw_X, raw_Y
+        X_raw = []
+        Y_raw = []
+        tokensMetrics: dict = {}
 
+        for language in ConfigurationManager.getLanguages():
+            tokensMetrics[language] = {}
+            for token in withTokensOccurencyMap:
+                tokensMetrics[language][token] = {}
+                tokensMetrics[language][token]['numberOfExamplesWithFeatureF']: int = len(withTokensOccurencyMap[token])
+                tokensMetrics[language][token]['numberOfExamplesWithoutFeatureF']: int = len(withoutTokensOccurencyMap[token])
+                tokensMetrics[language][token]['numberOfPositiveExamplesWithFeatureF']: int = len(
+                    [lg for lg in withTokensOccurencyMap[token] if lg == language]
+                )
+                tokensMetrics[language][token]['numberOfPositiveExamplesWithoutFeatureF']: int = len(
+                    [lg for lg in withoutTokensOccurencyMap[token] if lg == language]
+                )
 
+        languageFeatures = {}
+        tokensEntropyLoss: dict = {}
+        numberOfExamples = self.dataset.countExamples(dataset)
+
+        for language in ConfigurationManager.getLanguages():
+            tokensEntropyLoss[language] = {}
+            numberOfPositiveExamples: int = self.dataset.getCounters(dataset)[language]
+            for token in tokensMetrics[language]:
+                tokensEntropyLoss[language][token] = 0
+                metrics = tokensMetrics[language][token]
+                numberOfExamplesWithFeatureF = metrics['numberOfExamplesWithFeatureF']
+                numberOfExamplesWithoutFeatureF = metrics['numberOfExamplesWithoutFeatureF']
+                numberOfPositiveExamplesWithFeatureF = metrics['numberOfPositiveExamplesWithFeatureF']
+                numberOfPositiveExamplesWithoutFeatureF = metrics['numberOfPositiveExamplesWithoutFeatureF']
+                # preparing entropy formula vars
+                pr_C: float = numberOfPositiveExamples / numberOfExamples
+                pr_f: float = numberOfExamplesWithFeatureF / numberOfExamples
+                pr_C_f: float = numberOfPositiveExamplesWithFeatureF / numberOfExamplesWithFeatureF
+                pr_C_notf: float = numberOfPositiveExamplesWithoutFeatureF / numberOfExamplesWithoutFeatureF
+
+                pr_C = (pr_C if pr_C > 0 else .0001)
+                pr_f = (pr_f if pr_f > 0 else .0001)
+                pr_C_f = (pr_C_f if pr_C_f > 0 else .0001)
+                pr_C_notf = (pr_C_notf if pr_C_notf > 0 else .0001)
+
+                pr_C = (pr_C if pr_C < 1 else .9999)
+                pr_f = (pr_f if pr_f < 1 else .9999)
+                pr_C_f = (pr_C_f if pr_C_f < 1 else .9999)
+                pr_C_notf = (pr_C_notf if pr_C_notf < 1 else .9999)
+
+                # calculating token's entropy
+                e = -(pr_C * math.log2(pr_C)) - ((1-pr_C) * math.log2(1-pr_C))
+                e_f = -(pr_C_f * math.log2(pr_C_f)) - ((1-pr_C_f) * math.log2(1-pr_C_f))
+                e_not_f = -(pr_C_notf * math.log2(pr_C_notf)) - ((1-pr_C_notf) * math.log2(1-pr_C_notf))
+                tokensEntropyLoss[language][token] = e - (e_f * pr_f) + (e_not_f * (1-pr_f))
+
+            # sort by entropy values
+            tokensEntropyLoss[language] = {k: v for k, v in sorted(
+                tokensEntropyLoss[language].items(), key=lambda item: item[1])
+            }
+
+            languageFeatures[language] = list(tokensEntropyLoss[language].keys())[:10]
+
+        print('')
+        print(languageFeatures)
+        print('')
+
+        return codeArchive, languages

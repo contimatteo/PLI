@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # SVM
     print(' >  [testing] SVM: algorithm execution')
-    Solver.test('SVM')
+    # Solver.test('SVM')
 
     # # NaiveBayes
     print(' >  [testing] BAYES: algorithm execution')
