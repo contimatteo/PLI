@@ -15,10 +15,10 @@ ESCAPED_TOKENS = {
 }
 CONFIGURATION = {
     'FEATURE_FREQUENCY_THRESHOLD': 0.1,
-    'TRAINING_EXAMPLES_NUMBER': 400
+    'TRAINING_EXAMPLES_NUMBER': 350
 }
 TOKENIZER_CONFIG = {
-    'filter': '"`+-*/,./\\^_\t\n'
+    'filter': '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n'
 }
 
 

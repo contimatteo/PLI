@@ -52,13 +52,13 @@ def main():
     embed_dim = 128
     lstm_out = 64
     batch_size = 32
-    epochs = 10
+    epochs = 30
     test_size = 0.001
 
     tokenizer = Tokenizer(num_words=max_fatures)
     tokenizer.fit_on_texts(code_archive)
     dictionary = tokenizer.word_index
-    FileManager.createFile(os.path.join(FileManager.getRootUrl(), 'data/wordindex.json'), json.dumps(dictionary))
+    FileManager.createFile(os.path.join(FileManager.getRootUrl(), 'tmp/wordindex.json'), json.dumps(dictionary))
 
     X = tokenizer.texts_to_sequences(code_archive)
     X = pad_sequences(X, 100)
@@ -80,8 +80,8 @@ def main():
 
     history = model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size)
 
-    model.save(os.path.join(FileManager.getRootUrl(), 'data/code_model.h5'))
-    model.save_weights(os.path.join(FileManager.getRootUrl(), 'data/code_model_weights.h5'))
+    model.save(os.path.join(FileManager.getRootUrl(), 'tmp/code_model.h5'))
+    model.save_weights(os.path.join(FileManager.getRootUrl(), 'tmp/code_model_weights.h5'))
 
     score, acc = model.evaluate(X_test, Y_test, verbose=2, batch_size=batch_size)
     print(model.metrics_names)
