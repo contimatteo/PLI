@@ -28,11 +28,11 @@ if __name__ == "__main__":
 
     # SVM
     print(' >  [training] SVM: algorithm execution')
-    Solver.train('SVM')
+    # Solver.train('SVM')
 
     # # NaiveBayes
     print(' >  [training] BAYES: algorithm execution')
-    # Solver.train('BAYES')
+    Solver.train('BAYES')
 
     # # CNN
     print(' >  [training] CNN: algorithm execution')
@@ -46,11 +46,11 @@ if __name__ == "__main__":
 
     # SVM
     print(' >  [testing] SVM: algorithm execution')
-    Solver.test('SVM')
+    # Solver.test('SVM')
 
     # # NaiveBayes
     print(' >  [testing] BAYES: algorithm execution')
-    # Solver.test('BAYES')
+    Solver.test('BAYES')
 
     # # CNN
     print(' >  [testing] CNN: algorithm execution')
