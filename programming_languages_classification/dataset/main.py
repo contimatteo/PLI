@@ -4,7 +4,7 @@ import os
 import shutil
 import random
 from utils import ConfigurationManager, FileManager
-from ._instance import DatasetInstance
+from .instance import DatasetInstance
 from features import Parser
 
 
@@ -48,6 +48,9 @@ class DatasetManager:
 
         # initialize output folders
 
+        if not os.path.isdir(FileManager.getFeaturesFolderUrl()):
+            os.mkdir(FileManager.getFeaturesFolderUrl())
+
         if not os.path.isdir(FileManager.getModelsFolderUrl()):
             os.mkdir(FileManager.getModelsFolderUrl())
 
@@ -81,13 +84,15 @@ class DatasetManager:
 
                 # print languages with examples counter less than {TRAINING_EXAMPLES_NUMBER}
                 if languagesExamplesCounter[language] < TRAINING_EXAMPLES_NUMBER:
-                    print(' > [dataset] ' + str(language) + ' has examples number less than ' + str(
-                        TRAINING_EXAMPLES_NUMBER))
+                    print(' >  [dataset] the total number of examples for the '
+                          + language + ' is less than ' + str(TRAINING_EXAMPLES_NUMBER))
                     continue
 
                 # for this language, the total examples number could be less than {TRAINING_EXAMPLES_NUMBER}
-                indexesOfTrainingExamples = random.sample(range(1, languagesExamplesCounter[language]),
-                                                          TRAINING_EXAMPLES_NUMBER)
+                indexesOfTrainingExamples = random.sample(
+                    range(1, languagesExamplesCounter[language]),
+                    TRAINING_EXAMPLES_NUMBER
+                )
 
                 # list all examples in {languageFolder.name} folder
                 exampleIndex = 0
@@ -128,14 +133,16 @@ class DatasetManager:
             self.Dataset.addLanguage('training', language)
             # example
             for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
+                exampleDict: dict = {}
                 # original file
                 originalFileUri = FileManager.getOriginalFileUrl(exampleFolder.path)
                 originalFileContent = FileManager.readFile(originalFileUri)
+                exampleDict['original'] = originalFileContent
                 # parsed file
                 parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
                 parsedFileContent = FileManager.readFile(parsedFileUri)
+                exampleDict['parsed'] = parsedFileContent
                 # save
-                exampleDict: dict = {'original': originalFileContent, 'parsed': parsedFileContent}
                 self.Dataset.addExample('training', language, exampleDict)
 
         # testing
@@ -144,14 +151,16 @@ class DatasetManager:
             self.Dataset.addLanguage('testing', language)
             # example
             for exampleFolder in FileManager.getExamplesFolders(languageFolder.path):
+                exampleDict: dict = {}
                 # original file
                 originalFileUri = FileManager.getOriginalFileUrl(exampleFolder.path)
                 originalFileContent = FileManager.readFile(originalFileUri)
+                exampleDict['original'] = originalFileContent
                 # parsed file
                 parsedFileUri = FileManager.getParsedFileUrl(exampleFolder.path)
                 parsedFileContent = FileManager.readFile(parsedFileUri)
+                exampleDict['parsed'] = parsedFileContent
                 # save
-                exampleDict: dict = {'original': originalFileContent, 'parsed': parsedFileContent}
                 self.Dataset.addExample('testing', language, exampleDict)
 
         return self

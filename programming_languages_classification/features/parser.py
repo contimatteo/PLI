@@ -68,6 +68,7 @@ class Parser:
         words: list = line.split(' ')
         # analyze each word
         for ix, w in enumerate(words):
+            w = self._removeMultipleSpacesFrom(w)
             if len(w) > 1:
                 continue
             if regex.match("^[a-zA-Z]$", w): # this word contains only one letter?
@@ -97,7 +98,7 @@ class Parser:
                 # split ALPHA and NUMERIC chars
                 parsedLine = self._splitAlphaAndNumericChars(parsedLine)
                 # split PUNCTUATION chars
-                parsedLine = self._splitPuntaction(parsedLine)
+                # parsedLine = self._splitPuntaction(parsedLine)
                 # replace NUMERIC sequence
                 parsedLine = self._replaceNumericSequence(parsedLine)
                 # replace ALPHA chars

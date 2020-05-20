@@ -18,12 +18,18 @@ class DatasetInstance:
 
         return self.training
 
-    #
+    ##
 
     def getSources(self, dataset: str = 'training'):
         return self.__getByType(dataset)['sources']
 
-    #
+    def getCounters(self, dataset: str = 'training'):
+        return self.__getByType(dataset)['counters']
+
+    def countExamples(self, dataset: str = 'training'):
+        return self.__getByType(dataset)['size']
+
+    ##
 
     def addLanguage(self, dataset: str, language: str):
         if language not in self.__getByType(dataset)['sources']:
