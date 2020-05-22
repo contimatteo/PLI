@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     # # NaiveBayes
     print(' >  [training] BAYES: algorithm execution')
-    Solver.train('BAYES')
+    # Solver.train('BAYES')
 
     # # CNN
     print(' >  [training] CNN: algorithm execution')
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     # # NaiveBayes
     print(' >  [testing] BAYES: algorithm execution')
-    Solver.test('BAYES')
+    # Solver.test('BAYES')
 
     # # CNN
     print(' >  [testing] CNN: algorithm execution')
