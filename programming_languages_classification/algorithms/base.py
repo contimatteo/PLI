@@ -11,6 +11,7 @@ from dataset import DatasetManager
 
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 
 
 class _BaseAlgorithm:
@@ -74,3 +75,21 @@ class _BaseAlgorithm:
                 wordvec.append([0])
 
         return wordvec
+
+    #
+
+    def extractSources(self, dataset: str):
+        X_raw = []
+        Y_raw = []
+        sources: dict = self.Dataset.getSources(dataset)
+
+        for language in sources:
+            for exampleDict in sources[language]:
+                X_raw.append(
+                    str(exampleDict['parsed']) \
+                        .replace(ESCAPED_TOKENS['ALPHA'], '') \
+                        .replace(ESCAPED_TOKENS['NUMBER'], '')
+                )
+                Y_raw.append(language)
+
+        return X_raw, Y_raw

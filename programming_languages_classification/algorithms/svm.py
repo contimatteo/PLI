@@ -11,7 +11,6 @@ import math
 import json
 
 
-ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
     'number_of_tokens_for_language': 20
@@ -21,7 +20,6 @@ MODEL_CONFIG: dict = {
 class SVM(_BaseAlgorithm):
     def __init__(self):
         super().__init__()
-
         self.type = 'SVM'
         self.config = MODEL_CONFIG.copy()
 
@@ -31,16 +29,16 @@ class SVM(_BaseAlgorithm):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
 
+        # label encoder
+        Y_Encoder = preprocessing.LabelEncoder()
+        Y_Encoder.fit(ConfigurationManager.getLanguages())
+
         #
         # PREPARE FEATURES
         #
 
         # preparing features
         X, languages = self.__prepareFeatures('training')
-
-        # label encoder
-        Y_Encoder = preprocessing.LabelEncoder()
-        Y_Encoder.fit(ConfigurationManager.getLanguages())
 
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
@@ -94,27 +92,11 @@ class SVM(_BaseAlgorithm):
         self.model = svm.SVC()
         return self
 
-    def __extractSources(self, dataset: str):
-        X_raw = []
-        Y_raw = []
-        sources: dict = self.Dataset.getSources(dataset)
-
-        for language in self.Dataset.getSources(dataset):
-            for exampleDict in sources[language]:
-                X_raw.append(
-                    str(exampleDict['parsed']) \
-                        .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
-                )
-                Y_raw.append(language)
-
-        return X_raw, Y_raw
-
     def __calculateTokensEntropyLoss(self, dataset: str):
         if os.path.exists(FileManager.getFeaturesFileUrl(self.type)):
             return self
 
-        sources, languages = self.__extractSources(dataset)
+        sources, languages = self.extractSources(dataset)
         withTokensOccurencyMap: dict = {}
         withoutTokensOccurencyMap: dict = {}
 
@@ -208,7 +190,7 @@ class SVM(_BaseAlgorithm):
 
         X = []
         Y = []
-        sources, languages = self.__extractSources(dataset)
+        sources, languages = self.extractSources(dataset)
 
         for idx, source in enumerate(sources):
             language = languages[idx]

@@ -12,7 +12,6 @@ from collections import Counter
 from sklearn.metrics import accuracy_score
 
 
-ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
     'max_features': 100000,
@@ -91,22 +90,6 @@ class NaiveBayes(_BaseAlgorithm):
 
         return self
 
-    def __extractSources(self, dataset: str):
-        X_raw = []
-        Y_raw = []
-        sources: dict = self.Dataset.getSources(dataset)
-
-        for language in self.Dataset.getSources(dataset):
-            for exampleDict in sources[language]:
-                X_raw.append(
-                    str(exampleDict['parsed']) \
-                        .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
-                )
-                Y_raw.append(language)
-
-        return X_raw, Y_raw
-
     def __prepareModel(self):
         self.model = naive_bayes.GaussianNB()
         return self
@@ -117,7 +100,7 @@ class NaiveBayes(_BaseAlgorithm):
 
         X = []
         Y = []
-        sources, languages = self.__extractSources(dataset)
+        sources, languages = self.extractSources(dataset)
 
         wordsIndexes = {}
         if not importWordsIndexes:

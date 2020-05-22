@@ -1,7 +1,7 @@
 # /usr/bin/env python3
 
 # from solver import ProblemSolver
-from algorithms import NaiveBayes, SVM
+from algorithms import NaiveBayes, SVM, CNN
 
 
 if __name__ == "__main__":
@@ -50,12 +50,15 @@ if __name__ == "__main__":
 
     # initialization
     print(' >  [CNN]  features initialization ...')
+    cnn: CNN = CNN()
 
     # training
     print(' >  [CNN]  training ...')
+    cnn.train()
 
     # testing
     print(' >  [CNN]  testing ...')
+    cnn.test()
 
     print(' > ')
     print('\n')
