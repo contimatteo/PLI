@@ -59,7 +59,7 @@ class Parser:
         # analyze each word
         for ix, w in enumerate(words):
             w = w.replace(' ', '')
-            if regex.match("^[0-9]*$", w): # this word contains only numbers?
+            if regex.match("^[0-9]$", w): # this word contains only numbers?
                 words[ix] = ESCAPED_TOKENS['NUMBER']
 
         return ' '.join(words)
