@@ -4,51 +4,58 @@ from solver import ProblemSolver
 
 
 if __name__ == "__main__":
-    print('')
+    # ###################################################
+    # ################# INITIALIZATION ##################
+    # ###################################################
+
+    print('\n')
+    print(' > ')
     Solver = ProblemSolver()
 
-    # ###################################################
-
     # initialize
-    print(' > [setup] Initialization ...')
+    print(' >  [dataset] initialization')
     Solver.initialize()
-    print('')
 
     # load the dataset
-    print(' > [dataset] Copying files ...')
+    print(' >  [dataset] copying files')
     Solver.loadDataset()
-    print('')
+
+    print(' > ')
 
     # ###################################################
-
-    # SVM training
-    print(' > [training] ==> SVM training execution ...')
-    Solver.train('SVM')
-
-    # SVM testing
-    print(' > [testing] ==> SVM algorithm execution ...')
-    Solver.test('SVM')
-    print('')
-
+    # #################### TRAINING #####################
     # ###################################################
 
-    # NaiveBayes training
-    print(' > [training] ==> BAYES training execution ...')
-    Solver.train('BAYES')
+    # SVM
+    print(' >  [training] SVM: algorithm execution')
+    # Solver.train('SVM')
 
-    # NaiveBayes testing
-    print(' > [testing] ==> BAYES algorithm execution ...')
-    Solver.test('BAYES')
-    print('')
+    # # NaiveBayes
+    print(' >  [training] BAYES: algorithm execution')
+    # Solver.train('BAYES')
+
+    # # CNN
+    print(' >  [training] CNN: algorithm execution')
+    # Solver.train('CNN')
+
+    print(' > ')
 
     # ###################################################
+    # ##################### TESTING #####################
+    # ###################################################
 
-    # CNN training
-    print(' > [training] ==> CNN training execution ...')
-    Solver.train('CNN')
+    # SVM
+    print(' >  [testing] SVM: algorithm execution')
+    # Solver.test('SVM')
 
-    # CNN testing
-    print(' > [testing] ==> CNN algorithm execution ...')
-    Solver.test('CNN')
-    print('')
+    # # NaiveBayes
+    print(' >  [testing] BAYES: algorithm execution')
+    # Solver.test('BAYES')
+
+    # # CNN
+    print(' >  [testing] CNN: algorithm execution')
+    # Solver.test('CNN')
+
+    print(' > ')
+    print('\n')
 

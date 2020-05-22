@@ -13,10 +13,10 @@ from utils import ConfigurationManager, FileManager
 global dictionary
 global model
 
-dictionaryUrl = os.path.join(FileManager.getRootUrl(), 'data/wordindex.json')
+dictionaryUrl = os.path.join(FileManager.getRootUrl(), 'tmp/wordindex.json')
 dictionary = json.loads(FileManager.readFile(dictionaryUrl))
 
-modelUrl = os.path.join(FileManager.getRootUrl(), 'data/code_model.h5')
+modelUrl = os.path.join(FileManager.getRootUrl(), 'tmp/code_model.h5')
 model = load_model(modelUrl)
 
 

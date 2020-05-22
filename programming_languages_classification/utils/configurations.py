@@ -15,7 +15,10 @@ ESCAPED_TOKENS = {
 }
 CONFIGURATION = {
     'FEATURE_FREQUENCY_THRESHOLD': 0.1,
-    'TRAINING_EXAMPLES_NUMBER': 400
+    'TRAINING_EXAMPLES_NUMBER': 350
+}
+TOKENIZER_CONFIG = {
+    'filter': '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n'
 }
 
 
@@ -24,19 +27,23 @@ class ConfigurationManagerClass:
     escaped_tokens : list = []
     languages: dict = {'list': [], 'counters': {}}
     configuration: dict = {}
+    tokenizerConfiguration: dict = {}
 
     def __init__(self):
         self.initialize()
 
     def initialize(self):
         # languages
-        with open(LANGUAGES_URL) as jsonFile: self.languages['list'] = json.load(jsonFile)
+        with open(LANGUAGES_URL) as jsonFile:
+            self.languages['list'] = json.load(jsonFile)
         # reserved words
-        with open(RESERVED_WORDS_URL) as jsonFile: self.reserved_words = json.load(jsonFile)
+        with open(RESERVED_WORDS_URL) as jsonFile:
+            self.reserved_words = json.load(jsonFile)
         # escaped tokens
         self.escaped_tokens = ESCAPED_TOKENS
         # config
         self.configuration = CONFIGURATION
+        self.tokenizerConfiguration = TOKENIZER_CONFIG
 
     def getLanguages(self):
         return [str(lang).lower() for lang in self.languages['list']]
