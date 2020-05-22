@@ -5,6 +5,9 @@ from utils import FileManager
 from dataset import DatasetInstance
 import keras.preprocessing.text as kpt
 from utils import ConfigurationManager
+from keras.models import load_model
+import joblib
+from dataset import DatasetManager
 
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
@@ -12,13 +15,19 @@ TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 
 class _BaseAlgorithm:
 
-    type: str = 'MISSING'
-    dataset: DatasetInstance = None
-    model: None
-    config: dict = {}
+    def __init__(self):
+        self.type: str = 'MISSING'
+        self.Dataset: DatasetInstance = None
+        self.model: None
+        self.config: dict = {}
+        self.DatasetManger = DatasetManager()
 
-    def initialize(self, datasetInstance: DatasetInstance):
-        self.dataset = datasetInstance
+    def initialize(self):
+        # load the dataset
+        self.DatasetManger.initialize(self.type).load()
+        # save the dataset instance
+        self.Dataset = self.DatasetManger.Dataset
+
         return self
 
     #
@@ -28,6 +37,22 @@ class _BaseAlgorithm:
 
     def exportWordsIndexes(self, indexes):
         FileManager.writeFile(FileManager.getWordsIndexesFileUrl(self.type), json.dumps(indexes))
+        return self
+
+    def importKerasTrainedModel(self):
+        self.model = load_model(FileManager.getTrainedModelFileUrl(self.type))
+        return self
+
+    def importScikitTrainedModel(self):
+        self.model = joblib.load(FileManager.getTrainedModelFileUrl(self.type))
+        return self
+
+    def exportKerasTrainedModel(self):
+        self.model.save(FileManager.getTrainedModelFileUrl(self.type))
+        return self
+
+    def exportScikitTrainedModel(self):
+        joblib.dump(self.model, FileManager.getTrainedModelFileUrl(self.type))
         return self
 
     #

@@ -1,9 +1,9 @@
 # /usr/bin/env python3
 
 from dataset import DatasetManager
-from .algorithms.svm import SVM
-from .algorithms.cnn import CNN
-from .algorithms.bayes import NaiveBayes
+from solver.svm import SVM
+from solver.cnn import CNN
+from solver.bayes import NaiveBayes
 
 
 class ProblemSolver:
