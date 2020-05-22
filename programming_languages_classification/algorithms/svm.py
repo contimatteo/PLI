@@ -1,7 +1,7 @@
 # /usr/bin/env python3
 
 import os
-from ._scikit import _ScikitLearnAlgorithm
+from .base import _BaseAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
@@ -13,17 +13,19 @@ import json
 
 ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
-CONFIG: dict = {
+MODEL_CONFIG: dict = {
     'number_of_tokens_for_language': 20
 }
 
 
-class SVM(_ScikitLearnAlgorithm):
-
+class SVM(_BaseAlgorithm):
     def __init__(self):
         super().__init__()
+
         self.type = 'SVM'
-        self.config = CONFIG.copy()
+        self.config = MODEL_CONFIG.copy()
+
+        self.initialize()
 
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
@@ -52,7 +54,7 @@ class SVM(_ScikitLearnAlgorithm):
         # training
         self.model.fit(X, Y)
         # export the trained model
-        self.exportTrainedModel()
+        self.exportScikitTrainedModel()
 
         return self
 
@@ -72,7 +74,7 @@ class SVM(_ScikitLearnAlgorithm):
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
         # import trained model
-        self.importTrainedModel()
+        self.importScikitTrainedModel()
 
         #
         # TESTING
@@ -82,7 +84,7 @@ class SVM(_ScikitLearnAlgorithm):
         Y_predicted = self.model.predict(X)
 
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [testing] SVM: algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        print(' >  [SVM]  algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
 
         return self
 
@@ -95,9 +97,9 @@ class SVM(_ScikitLearnAlgorithm):
     def __extractSources(self, dataset: str):
         X_raw = []
         Y_raw = []
-        sources: dict = self.dataset.getSources(dataset)
+        sources: dict = self.Dataset.getSources(dataset)
 
-        for language in self.dataset.getSources(dataset):
+        for language in self.Dataset.getSources(dataset):
             for exampleDict in sources[language]:
                 X_raw.append(
                     str(exampleDict['parsed']) \
@@ -151,12 +153,12 @@ class SVM(_ScikitLearnAlgorithm):
 
         languageFeatures = {}
         tokensEntropyLoss: dict = {}
-        numberOfExamples = self.dataset.countExamples(dataset)
+        numberOfExamples = self.Dataset.countExamples(dataset)
         N_OF_TOKENS_FOR_LANGUAGE: int = self.config['number_of_tokens_for_language']
 
         for language in ConfigurationManager.getLanguages():
             tokensEntropyLoss[language] = {}
-            numberOfPositiveExamples: int = self.dataset.getCounters(dataset)[language]
+            numberOfPositiveExamples: int = self.Dataset.getCounters(dataset)[language]
             for token in tokensMetrics[language]:
                 tokensEntropyLoss[language][token] = 0
                 metrics = tokensMetrics[language][token]
