@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # testing
     print(' >  [BAYES]  testing ...')
-    # naiveBayes.test()
+    naiveBayes.test()
 
     print(' > ')
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     # testing
     print(' >  [SVM]  testing ...')
-    # svm.test()
+    svm.test()
 
     print(' > ')
 
