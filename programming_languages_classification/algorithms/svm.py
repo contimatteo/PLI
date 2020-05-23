@@ -5,7 +5,7 @@ from .base import _BaseAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 import keras.preprocessing.text as kpt
 import math
 import json
@@ -33,24 +33,18 @@ class SVM(_BaseAlgorithm):
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
-        #
-        # PREPARE FEATURES
-        #
-
         # preparing features
         X, languages = self.__prepareFeatures('training')
 
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
 
-        #
-        # TRAINING
-        #
-
         # prepare model
         self.__prepareModel()
+
         # training
         self.model.fit(X, Y)
+
         # export the trained model
         self.exportScikitTrainedModel()
 
@@ -60,29 +54,28 @@ class SVM(_BaseAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('testing')
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('testing')
+
         # import trained model
         self.importScikitTrainedModel()
 
-        #
-        # TESTING
-        #
-
+        # make predictions
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
 
+        # metrics
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [SVM]  algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        report = classification_report(Y_real, Y_predicted, target_names=Y_Encoder.classes_)
+        print(' >  [SVM]  classification report exported!')
+        print(' >  [SVM]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+
+        # export the classification report
+        self.exportClassificationReport(str(report))
 
         return self
 

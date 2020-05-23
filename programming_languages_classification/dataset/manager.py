@@ -60,6 +60,9 @@ class DatasetManager:
         if not os.path.isdir(FileManager.getWordsIndexesFolderUrl()):
             os.mkdir(FileManager.getWordsIndexesFolderUrl())
 
+        if not os.path.isdir(FileManager.getReportsFolderUrl()):
+            os.mkdir(FileManager.getReportsFolderUrl())
+
         return datasetAlreadyExists
 
     def __cloneFilesSources(self):

@@ -56,6 +56,9 @@ class _BaseAlgorithm:
         joblib.dump(self.model, FileManager.getTrainedModelFileUrl(self.type))
         return self
 
+    def exportClassificationReport(self, report: str):
+        FileManager.writeFile(FileManager.getReportFileUrl(self.type), report)
+
     #
 
     def generateWordsIndexesForUnknownExample(self, wordsIndexes, source: str):
