@@ -6,10 +6,9 @@ from .base import _BaseAlgorithm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
 from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
 import keras.preprocessing.text as kpt
 from collections import Counter
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
@@ -64,29 +63,28 @@ class NaiveBayes(_BaseAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('testing', True)
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('testing', True)
+
         # import trained model
         self.importScikitTrainedModel()
 
-        #
-        # TESTING
-        #
-
+        # make predictions
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
 
+        # metrics
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [BAYES]  algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        report = classification_report(Y_real, Y_predicted, target_names=Y_Encoder.classes_)
+        print(' >  [BAYES]  classification report exported!')
+        print(' >  [BAYES]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+
+        # export the classification report
+        self.exportClassificationReport(str(report))
 
         return self
 

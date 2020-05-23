@@ -1,7 +1,10 @@
 # /usr/bin/env python3
 
-# from solver import ProblemSolver
+import dotenv
 from algorithms import NaiveBayes, SVM, CNN
+
+
+dotenv.load_dotenv()
 
 
 if __name__ == "__main__":
@@ -22,7 +25,7 @@ if __name__ == "__main__":
 
     # testing
     print(' >  [BAYES]  testing ...')
-    naiveBayes.test()
+    # naiveBayes.test()
 
     print(' > ')
 
@@ -40,7 +43,7 @@ if __name__ == "__main__":
 
     # testing
     print(' >  [SVM]  testing ...')
-    svm.test()
+    # svm.test()
 
     print(' > ')
 
