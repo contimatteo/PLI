@@ -1,7 +1,10 @@
 # /usr/bin/env python3
 
-# from solver import ProblemSolver
+import dotenv
 from algorithms import NaiveBayes, SVM, CNN
+
+
+dotenv.load_dotenv()
 
 
 if __name__ == "__main__":

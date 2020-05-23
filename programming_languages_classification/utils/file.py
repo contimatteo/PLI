@@ -12,6 +12,7 @@ TESTING_FOLDER: str = 'testing'
 WORDS_INDEXES_FOLDER: str = 'words-indexes'
 MODELS_FOLDER: str = 'models'
 FEATURES_FOLDER = 'features'
+REPORTS_FOLDER = 'reports'
 
 
 FILE_NAMES: dict = {
@@ -55,6 +56,9 @@ class FileManagerClass:
         name: str = algorithm.lower() + '.' + extension
         return os.path.join(self.getModelsFolderUrl(), name)
 
+    def getReportFileUrl(self, algorithm: str):
+        return os.path.join(self.getReportsFolderUrl(),  algorithm.lower() + '.txt')
+
     def readFile(self, url):
         file = open(url, 'r')
         fileContent = file.read()
@@ -94,6 +98,9 @@ class FileManagerClass:
 
     def getFeaturesFolderUrl(self):
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, FEATURES_FOLDER])
+
+    def getReportsFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, REPORTS_FOLDER])
 
     #
 
