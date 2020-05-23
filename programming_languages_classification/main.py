@@ -1,60 +1,64 @@
 # /usr/bin/env python3
 
-from solver import ProblemSolver
+# from solver import ProblemSolver
+from algorithms import NaiveBayes, SVM, CNN
 
 
 if __name__ == "__main__":
-    # ###################################################
-    # ################# INITIALIZATION ##################
-    # ###################################################
-
     print('\n')
     print(' > ')
-    Solver = ProblemSolver()
 
-    # initialize
-    print(' >  [dataset] initialization')
-    Solver.initialize()
+    #
+    # BAYES
+    #
 
-    # load the dataset
-    print(' >  [dataset] copying files')
-    Solver.loadDataset()
+    # initialization
+    print(' >  [BAYES]  features initialization ...')
+    naiveBayes = NaiveBayes()
 
-    print(' > ')
+    # training
+    print(' >  [BAYES]  training ...')
+    naiveBayes.train()
 
-    # ###################################################
-    # #################### TRAINING #####################
-    # ###################################################
-
-    # SVM
-    print(' >  [training] SVM: algorithm execution')
-    # Solver.train('SVM')
-
-    # # NaiveBayes
-    print(' >  [training] BAYES: algorithm execution')
-    # Solver.train('BAYES')
-
-    # # CNN
-    print(' >  [training] CNN: algorithm execution')
-    # Solver.train('CNN')
+    # testing
+    print(' >  [BAYES]  testing ...')
+    naiveBayes.test()
 
     print(' > ')
 
-    # ###################################################
-    # ##################### TESTING #####################
-    # ###################################################
-
+    #
     # SVM
-    print(' >  [testing] SVM: algorithm execution')
-    # Solver.test('SVM')
+    #
 
-    # # NaiveBayes
-    print(' >  [testing] BAYES: algorithm execution')
-    # Solver.test('BAYES')
+    # initialization
+    print(' >  [SVM]  features initialization ...')
+    svm = SVM()
 
-    # # CNN
-    print(' >  [testing] CNN: algorithm execution')
-    # Solver.test('CNN')
+    # training
+    print(' >  [SVM]  training ...')
+    svm.train()
+
+    # testing
+    print(' >  [SVM]  testing ...')
+    svm.test()
+
+    print(' > ')
+
+    #
+    # CNN
+    #
+
+    # initialization
+    print(' >  [CNN]  features initialization ...')
+    cnn: CNN = CNN()
+
+    # training
+    print(' >  [CNN]  training ...')
+    cnn.train()
+
+    # testing
+    print(' >  [CNN]  testing ...')
+    cnn.test()
 
     print(' > ')
     print('\n')
