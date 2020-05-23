@@ -13,12 +13,15 @@ TRAINING_EXAMPLES_NUMBER: int = ConfigurationManager.configuration['TRAINING_EXA
 
 class DatasetManager:
     Dataset = None
+    algorithm: str = None
 
     def __init__(self):
         self.Dataset = DatasetInstance()
 
-    def initialize(self):
+    def initialize(self, algorithm: str):
         self.Dataset.initialize()
+        self.algorithm = algorithm
+
         return self
 
     def load(self):
