@@ -1,6 +1,2 @@
-
-training/*
-testing/*
-models/*
-words-indexes/*
-Features/*
+*
+!.gitignore
