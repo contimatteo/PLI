@@ -47,10 +47,6 @@ class CNN(_BaseAlgorithm):
         batch_size: int = self.config['batch_size']
         epochs: int = self.config['epochs']
 
-        #
-        # PREPARE FEATURES
-        #
-
         # preparing features
         X, Y = self.__prepareFeatures('training', False)
 

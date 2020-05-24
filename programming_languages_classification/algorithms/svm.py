@@ -82,7 +82,7 @@ class SVM(_BaseAlgorithm):
     ##
 
     def __prepareModel(self):
-        self.model = svm.SVC()
+        self.model = svm.SVC(kernel='linear')
         return self
 
     def __calculateTokensEntropyLoss(self, dataset: str):

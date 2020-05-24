@@ -22,7 +22,6 @@ class NaiveBayes(_BaseAlgorithm):
 
     def __init__(self):
         super().__init__()
-
         self.type = 'BAYES'
         self.config = MODEL_CONFIG.copy()
 
@@ -31,10 +30,6 @@ class NaiveBayes(_BaseAlgorithm):
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
-
-        #
-        # PREPARE FEATURES
-        #
 
         # preparing features
         X, languages = self.__prepareFeatures('training', False)
@@ -45,10 +40,6 @@ class NaiveBayes(_BaseAlgorithm):
 
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
-
-        #
-        # TRAINING
-        #
 
         # prepare model
         self.__prepareModel()
