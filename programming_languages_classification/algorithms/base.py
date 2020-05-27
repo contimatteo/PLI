@@ -89,9 +89,11 @@ class _BaseAlgorithm:
         for language in sources:
             for exampleDict in sources[language]:
                 X_raw.append(
-                    str(exampleDict['parsed']) \
+                    str(exampleDict['filtered']) \
                         .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
+                        .replace(ESCAPED_TOKENS['NUMBER'], '') \
+                        .replace(ESCAPED_TOKENS['NOT_RELEVANT'], '') \
+                        .replace('\n', ' ')
                 )
                 Y_raw.append(language)
 
