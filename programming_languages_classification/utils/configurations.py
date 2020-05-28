@@ -12,6 +12,7 @@ ESCAPED_TOKENS = {
     'NEW_LINE': '__NL__',
     'ALPHA': '__a__',
     'NUMBER': '__n__',
+    'NOT_RELEVANT': '__nr__',
 }
 CONFIGURATION = {
     'FEATURE_FREQUENCY_THRESHOLD': 0.1,

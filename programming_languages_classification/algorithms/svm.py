@@ -1,58 +1,52 @@
 # /usr/bin/env python3
 
 import os
-from ._scikit import _ScikitLearnAlgorithm
+from .base import _BaseAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 import keras.preprocessing.text as kpt
 import math
 import json
 
 
-ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
-CONFIG: dict = {
-    'number_of_tokens_for_language': 20
+MODEL_CONFIG: dict = {
+    'number_of_tokens_for_language': 15
 }
 
 
-class SVM(_ScikitLearnAlgorithm):
-
+class SVM(_BaseAlgorithm):
     def __init__(self):
         super().__init__()
         self.type = 'SVM'
-        self.config = CONFIG.copy()
+        self.config = MODEL_CONFIG.copy()
+
+        self.initialize()
 
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('training')
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('training')
+
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
 
-        #
-        # TRAINING
-        #
-
         # prepare model
         self.__prepareModel()
+
         # training
         self.model.fit(X, Y)
+
         # export the trained model
-        self.exportTrainedModel()
+        self.exportScikitTrainedModel()
 
         return self
 
@@ -60,59 +54,42 @@ class SVM(_ScikitLearnAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('testing')
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('testing')
+
         # import trained model
-        self.importTrainedModel()
+        self.importScikitTrainedModel()
 
-        #
-        # TESTING
-        #
-
+        # make predictions
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
 
+        # metrics
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [testing] SVM: algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        report = classification_report(Y_real, Y_predicted, target_names=Y_Encoder.classes_)
+        print(' >  [SVM]  classification report exported!')
+        print(' >  [SVM]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+
+        # export the classification report
+        self.exportClassificationReport(str(report))
 
         return self
 
     ##
 
     def __prepareModel(self):
-        self.model = svm.SVC()
+        self.model = svm.SVC(kernel='linear')
         return self
-
-    def __extractSources(self, dataset: str):
-        X_raw = []
-        Y_raw = []
-        sources: dict = self.dataset.getSources(dataset)
-
-        for language in self.dataset.getSources(dataset):
-            for exampleDict in sources[language]:
-                X_raw.append(
-                    str(exampleDict['parsed']) \
-                        .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
-                )
-                Y_raw.append(language)
-
-        return X_raw, Y_raw
 
     def __calculateTokensEntropyLoss(self, dataset: str):
         if os.path.exists(FileManager.getFeaturesFileUrl(self.type)):
             return self
 
-        sources, languages = self.__extractSources(dataset)
+        sources, languages = self.extractSources(dataset)
         withTokensOccurencyMap: dict = {}
         withoutTokensOccurencyMap: dict = {}
 
@@ -151,12 +128,12 @@ class SVM(_ScikitLearnAlgorithm):
 
         languageFeatures = {}
         tokensEntropyLoss: dict = {}
-        numberOfExamples = self.dataset.countExamples(dataset)
+        numberOfExamples = self.Dataset.countExamples(dataset)
         N_OF_TOKENS_FOR_LANGUAGE: int = self.config['number_of_tokens_for_language']
 
         for language in ConfigurationManager.getLanguages():
             tokensEntropyLoss[language] = {}
-            numberOfPositiveExamples: int = self.dataset.getCounters(dataset)[language]
+            numberOfPositiveExamples: int = self.Dataset.getCounters(dataset)[language]
             for token in tokensMetrics[language]:
                 tokensEntropyLoss[language][token] = 0
                 metrics = tokensMetrics[language][token]
@@ -206,7 +183,7 @@ class SVM(_ScikitLearnAlgorithm):
 
         X = []
         Y = []
-        sources, languages = self.__extractSources(dataset)
+        sources, languages = self.extractSources(dataset)
 
         for idx, source in enumerate(sources):
             language = languages[idx]
