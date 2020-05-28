@@ -91,7 +91,9 @@ class _BaseAlgorithm:
                 X_raw.append(
                     str(exampleDict['parsed']) \
                         .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
+                        .replace(ESCAPED_TOKENS['NUMBER'], '') \
+                        .replace(ESCAPED_TOKENS['NOT_RELEVANT'], '') \
+                        .replace('\n', ' ')
                 )
                 Y_raw.append(language)
 

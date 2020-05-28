@@ -13,7 +13,7 @@ import json
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'number_of_tokens_for_language': 20
+    'number_of_tokens_for_language': 15
 }
 
 

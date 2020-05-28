@@ -59,7 +59,7 @@ class Parser:
         # analyze each word
         for ix, w in enumerate(words):
             w = w.replace(' ', '')
-            if regex.match("^[0-9]$", w): # this word contains only numbers?
+            if regex.match("^[0-9]+$", w): # this word contains only numbers?
                 words[ix] = ESCAPED_TOKENS['NUMBER']
 
         return ' '.join(words)
@@ -92,7 +92,7 @@ class Parser:
         for line in originalFile:
             parsedLine: str = ""
             # original content to LOWERCASE
-            parsedLine += str(line).lower().replace('\n', '')
+            parsedLine += str(line).lower().replace('\n', ' ')  # '\n\n' case removed
             # parse only if this line isn't a COMMENT
             if not self._isLineAComment(parsedLine):
                 # split ALPHA and NUMERIC chars
@@ -106,7 +106,7 @@ class Parser:
                 # replace NEW LINE char
                 # parsedLine += ' ' + ESCAPED_TOKENS['NEW_LINE'] + ' '
                 # add line to final parsed content
-                parsedContent += parsedLine + '\n'
+                parsedContent += parsedLine + ' \n '
 
         # end the parsed file content
         # parsedContent += ' ' + ESCAPED_TOKENS['FILE_END']
