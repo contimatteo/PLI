@@ -81,7 +81,7 @@ class NaiveBayes(_BaseAlgorithm):
         return self
 
     def __prepareModel(self):
-        self.model = naive_bayes.GaussianNB()
+        self.model = naive_bayes.MultinomialNB()
         return self
 
     def __prepareFeatures(self, dataset: str, importWordsIndexes=False):
