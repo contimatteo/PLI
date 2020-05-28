@@ -11,9 +11,10 @@ from collections import Counter
 from sklearn.metrics import accuracy_score, classification_report
 
 
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 5000,
+    'max_features': 10000,
     'max_len_sequences': 500
 }
 
@@ -112,7 +113,7 @@ class NaiveBayes(_BaseAlgorithm):
             language = languages[i]
             features: list = []
 
-            sourceTokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            sourceTokens = set(source.split(' '))
             sourceTokensOccurencies = Counter(list(sourceTokens))
             for token, indexValue in wordsIndexesSortedByIndex.items():
                 if token not in sourceTokensOccurencies:
@@ -124,3 +125,9 @@ class NaiveBayes(_BaseAlgorithm):
             Y.append(language)
 
         return X, Y
+
+    #
+
+    # @override
+    def extractSources(self, dataset: str):
+        return super().extractSources(dataset, 'filtered')
