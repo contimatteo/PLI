@@ -76,6 +76,17 @@ class Parser:
 
         return ' '.join(words)
 
+    def _replaceEmptyCharacters(self, line: str):
+        words: list = []
+        # analyze each word
+        for ix, w in enumerate(line.split(' ')):
+            w = self._removeMultipleSpacesFrom(w)
+            if len(w) < 1 or w == '':
+                continue
+            words.append(w)
+
+        return ' '.join(words)
+
     ##
 
     def parse(self):
@@ -103,6 +114,8 @@ class Parser:
                 parsedLine = self._replaceNumericSequence(parsedLine)
                 # replace ALPHA chars
                 parsedLine = self._replaceAlphaCharacters(parsedLine)
+                # filter empty chars
+                parsedLine = self._replaceEmptyCharacters(parsedLine)
                 # replace NEW LINE char
                 # parsedLine += ' ' + ESCAPED_TOKENS['NEW_LINE'] + ' '
                 # add line to final parsed content

@@ -20,7 +20,7 @@ from sklearn.metrics import classification_report
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 5000,
+    'max_features': 50000,
     'max_len_sequences': 500,
     'embed_dim': 128,
     'lstm_out': 64,
@@ -138,10 +138,10 @@ class CNN(_BaseAlgorithm):
         if importIndexes:
             wordsIndexesWithUnknownWords: dict = wordsIndexes.copy()
             for index, source in enumerate(sources):
-                tokens = kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter'])
-                for token in tokens:
+                for token in source.split(' '):
                     if token not in wordsIndexesWithUnknownWords:
                         wordsIndexesWithUnknownWords[token] = 0
+            #
             tokenizer.word_index = wordsIndexesWithUnknownWords
 
         # X + Y
