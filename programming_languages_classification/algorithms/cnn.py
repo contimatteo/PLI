@@ -20,12 +20,12 @@ from sklearn.metrics import classification_report
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 100000,
+    'max_features': 5000,
+    'max_len_sequences': 500,
     'embed_dim': 128,
     'lstm_out': 64,
     'batch_size': 32,
     'epochs': 10,
-    'max_len_sequences': 1000
 }
 
 

@@ -13,8 +13,8 @@ from sklearn.metrics import accuracy_score, classification_report
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 100000,
-    'max_len_sequences': 100
+    'max_features': 5000,
+    'max_len_sequences': 500
 }
 
 
