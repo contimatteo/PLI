@@ -12,13 +12,15 @@ ESCAPED_TOKENS = {
     'NEW_LINE': '__NL__',
     'ALPHA': '__a__',
     'NUMBER': '__n__',
+    'NOT_RELEVANT': '__nr__',
 }
 CONFIGURATION = {
     'FEATURE_FREQUENCY_THRESHOLD': 0.1,
     'TRAINING_EXAMPLES_NUMBER': 350
 }
 TOKENIZER_CONFIG = {
-    'filter': '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n'
+    'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^_{|}~\t\n'
+    # 'filter': '_'
 }
 
 

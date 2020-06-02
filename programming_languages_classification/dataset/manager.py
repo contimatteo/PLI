@@ -1,6 +1,7 @@
 # /usr/bin/env python3
 
 import os
+import json
 import shutil
 import random
 from utils import ConfigurationManager, FileManager
@@ -8,7 +9,12 @@ from .instance import DatasetInstance
 from features import Parser
 
 
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TRAINING_EXAMPLES_NUMBER: int = ConfigurationManager.configuration['TRAINING_EXAMPLES_NUMBER']
+
+# backup vars
+tmpTokenOccurrencies = None
+tmpTokensWithLowRelevance = None
 
 
 class DatasetManager:
@@ -31,8 +37,19 @@ class DatasetManager:
         if not datasetAlreadyExists:
             self.__cloneFilesSources()
 
-        # load dataset in memory
-        self.__loadInMemory()
+        if not os.path.exists(FileManager.getDatasetCopyFileUrl()):
+            # load dataset in memory
+            self.__loadInMemory()
+            # generate 'filtered' version
+            self.__filterSources()
+
+            # save dataset copy
+            datasetCopy: dict = {'training': self.Dataset.training,  'testing': self.Dataset.testing}
+            FileManager.writeFile(FileManager.getDatasetCopyFileUrl(), json.dumps(datasetCopy))
+        else:
+            datasetCopy = json.loads(FileManager.readFile(FileManager.getDatasetCopyFileUrl()))
+            self.Dataset.training = datasetCopy['training']
+            self.Dataset.testing = datasetCopy['testing']
 
         return self
 
@@ -168,5 +185,71 @@ class DatasetManager:
                 exampleDict['parsed'] = parsedFileContent
                 # save
                 self.Dataset.addExample('testing', language, exampleDict)
+
+        return self
+
+    def __filterSources(self):
+        global tmpTokenOccurrencies
+        global tmpTokensWithLowRelevance
+
+        tokenOccurrencies: dict = {}
+        tokensWithLowRelevance = {}
+        relevanceOccurencyThreshold = 2
+
+        # count tokens occurrency
+        if tmpTokenOccurrencies is None:
+            sources = self.Dataset.getSources('training')
+            for language in sources:
+                if language not in tokenOccurrencies:
+                    tokenOccurrencies[language] = {}
+                for exampleDict in sources[language]:
+                    source = str(exampleDict['parsed'])
+                    source = source.replace(ESCAPED_TOKENS['ALPHA'], '')
+                    source = source.replace(ESCAPED_TOKENS['NUMBER'], '')
+                    source = source.replace('\n', ' ')
+                    # set(...) avoid counting occurrency inside this single example
+                    for token in set(source.split(' ')):
+                        if token not in tokenOccurrencies[language]:
+                            tokenOccurrencies[language][token] = 1
+                        else:
+                            tokenOccurrencies[language][token] += 1
+
+            tmpTokenOccurrencies = tokenOccurrencies
+        else:
+            tokenOccurrencies = tmpTokenOccurrencies
+
+        # extract tokens with occurrency lower than a threshold
+        if tmpTokensWithLowRelevance is None:
+            for language in sources:
+                if language not in tokensWithLowRelevance:
+                    tokensWithLowRelevance[language] = []
+                for token in tokenOccurrencies[language]:
+                    occurency = tokenOccurrencies[language][token]
+                    if occurency < relevanceOccurencyThreshold:
+                        tokensWithLowRelevance[language].append(token)
+
+            tmpTokensWithLowRelevance = tokensWithLowRelevance
+        else:
+            tokensWithLowRelevance = tmpTokensWithLowRelevance
+
+        # replace token with low relevance (selected in the previou step)
+        sources = self.Dataset.getSources('training')
+        for language in sources:
+            for exampleDict in sources[language]:
+                source = str(exampleDict['parsed'])
+                source = source.replace('\n', ' ')
+                exampleDict['filtered'] = ''
+                for token in source.split(' '):
+                    exampleDict['filtered'] += ' '
+                    if token not in tokensWithLowRelevance[language]:
+                        exampleDict['filtered'] += str(token).replace(' ', '')
+                    else:
+                        exampleDict['filtered'] += ESCAPED_TOKENS['NOT_RELEVANT']
+
+        # clone testing 'parsed' sources as 'filtered' (no changes applied)
+        sources = self.Dataset.getSources('testing')
+        for language in sources:
+            for exampleDict in sources[language]:
+                exampleDict['filtered'] = str(exampleDict['parsed'])
 
         return self

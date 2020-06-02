@@ -59,6 +59,9 @@ class FileManagerClass:
     def getReportFileUrl(self, algorithm: str):
         return os.path.join(self.getReportsFolderUrl(),  algorithm.lower() + '.txt')
 
+    def getDatasetCopyFileUrl(self):
+        return os.path.join(self.getTmpFolderUrl(),  '_dataset.copy.json')
+
     def readFile(self, url):
         file = open(url, 'r')
         fileContent = file.read()

@@ -13,7 +13,7 @@ import json
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'number_of_tokens_for_language': 20
+    'number_of_tokens_for_language': 15
 }
 
 
@@ -82,7 +82,7 @@ class SVM(_BaseAlgorithm):
     ##
 
     def __prepareModel(self):
-        self.model = svm.SVC()
+        self.model = svm.SVC(kernel='linear')
         return self
 
     def __calculateTokensEntropyLoss(self, dataset: str):
@@ -95,7 +95,7 @@ class SVM(_BaseAlgorithm):
 
         for index, source in enumerate(sources):
             language = languages[index]
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             for token in tokens:
                 if token not in withTokensOccurencyMap:
                     withTokensOccurencyMap[token] = []
@@ -103,7 +103,7 @@ class SVM(_BaseAlgorithm):
 
         for index, source in enumerate(sources):
             language = languages[index]
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             for token in withTokensOccurencyMap:
                 if token not in tokens:
                     if token not in withoutTokensOccurencyMap:
@@ -147,11 +147,13 @@ class SVM(_BaseAlgorithm):
                 pr_C_f: float = numberOfPositiveExamplesWithFeatureF / numberOfExamplesWithFeatureF
                 pr_C_notf: float = numberOfPositiveExamplesWithoutFeatureF / numberOfExamplesWithoutFeatureF
 
+                # TODO: use this https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
                 pr_C = (pr_C if pr_C > 0 else .0001)
                 pr_f = (pr_f if pr_f > 0 else .0001)
                 pr_C_f = (pr_C_f if pr_C_f > 0 else .0001)
                 pr_C_notf = (pr_C_notf if pr_C_notf > 0 else .0001)
 
+                # TODO: use this https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
                 pr_C = (pr_C if pr_C < 1 else .9999)
                 pr_f = (pr_f if pr_f < 1 else .9999)
                 pr_C_f = (pr_C_f if pr_C_f < 1 else .9999)
@@ -188,7 +190,7 @@ class SVM(_BaseAlgorithm):
         for idx, source in enumerate(sources):
             language = languages[idx]
             features = []
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             # X
             for _lang in languageFeatures:
                 for _tk in languageFeatures[_lang]:
