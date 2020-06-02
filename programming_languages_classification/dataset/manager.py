@@ -37,11 +37,19 @@ class DatasetManager:
         if not datasetAlreadyExists:
             self.__cloneFilesSources()
 
-        # load dataset in memory
-        self.__loadInMemory()
+        if not os.path.exists(FileManager.getDatasetCopyFileUrl()):
+            # load dataset in memory
+            self.__loadInMemory()
+            # generate 'filtered' version
+            self.__filterSources()
 
-        # generate 'filtered' version
-        self.__filterSources()
+            # save dataset copy
+            datasetCopy: dict = {'training': self.Dataset.training,  'testing': self.Dataset.testing}
+            FileManager.writeFile(FileManager.getDatasetCopyFileUrl(), json.dumps(datasetCopy))
+        else:
+            datasetCopy = json.loads(FileManager.readFile(FileManager.getDatasetCopyFileUrl()))
+            self.Dataset.training = datasetCopy['training']
+            self.Dataset.testing = datasetCopy['testing']
 
         return self
 
