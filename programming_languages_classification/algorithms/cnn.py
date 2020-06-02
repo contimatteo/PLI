@@ -11,21 +11,22 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Flatten
 from keras.layers.embeddings import Embedding
 from keras.layers import Conv1D, MaxPooling1D
-from keras.layers import Dropout, Bidirectional
+from keras.layers import Dropout, Bidirectional, SpatialDropout1D
 from keras.layers.recurrent import LSTM
 import os
 import keras.preprocessing.text as kpt
 from sklearn.metrics import classification_report
+from keras.callbacks import EarlyStopping
 
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
     'max_features': 50000,
-    'max_len_sequences': 500,
-    'embed_dim': 128,
+    'max_len_sequences': 512,
+    'embed_dim': 256,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 10,
+    'epochs': 50,
 }
 
 
@@ -56,8 +57,11 @@ class CNN(_BaseAlgorithm):
         # prepare model
         self.__prepareModel(Y)
 
+        # set early stopping monitor so the model stops training when it won't improve anymore
+        early_stopping_monitor = EarlyStopping(monitor='loss', patience=3)
         # training
-        history = self.model.fit(X, Y, epochs=epochs, batch_size=batch_size, verbose=0)
+        history = self.model.fit(X, Y, batch_size, epochs, verbose=1, callbacks=[early_stopping_monitor])
+        print('\n' + str(self.model.summary()))
 
         # export the trained model
         self.exportKerasTrainedModel()
@@ -101,16 +105,41 @@ class CNN(_BaseAlgorithm):
         input_length: int = self.config['max_len_sequences']
         lstm_out: int = self.config['lstm_out']
 
+        # This is appropriate for a plain stack of layers where each layer has exactly one input and one output tensor.
+        # A Sequential model is not appropriate when:
+        #   - Your model has multiple inputs or multiple outputs
+        #   - Any of your layers has multiple inputs or multiple outputs
+        #   - You need to do layer sharing
+        #   - You want non-linear topology (e.g. a residual connection, a multi-branch model)
         self.model = Sequential()
-        self.model.add(Embedding(max_features, embed_dim, input_length=input_length))
-        self.model.add(Conv1D(filters=128, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
+        # 
+        # Turns positive integers (indexes) into dense vectors of fixed size.
+        self.model.add(Embedding(max_features, output_dim=embed_dim, input_length=input_length))
+        # 
+        # Creates a convolution kernel that is convolved with the layer input over a single spatial dimension to
+        # produce a tensor of outputs.
+        self.model.add(Conv1D(filters=embed_dim, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
+        # Downsamples the input representation by taking the maximum value over the window defined by pool_size.
+        # The resulting output shape when using the "valid" padding option is:
+        # output_shape = (input_shape - pool_size + 1) / strides)
         self.model.add(MaxPooling1D(pool_size=4))
+        # 
         self.model.add(Conv1D(filters=64, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
         self.model.add(MaxPooling1D(pool_size=2))
+        #
         self.model.add(LSTM(lstm_out))
+        #
+        # The Dropout layer randomly sets input units to 0 with a frequency of rate at each step during training time,
+        # which helps prevent overfitting. Inputs not set to 0 are scaled up by 1/(1 - rate) such that the sum over
+        # all inputs is unchanged.
         self.model.add(Dropout(0.5))
+        #
+        # Dense implements the operation: output = activation(dot(input, kernel) + bias) where activation is the
+        # element - wise activation function passed as the activation argument, kernel is a weights matrix created
+        # by the layer,
         self.model.add(Dense(64))
         self.model.add(Dense(len(Y.columns), activation='softmax'))
+        # 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         return self
