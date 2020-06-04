@@ -109,7 +109,7 @@ class Parser:
                 # split ALPHA and NUMERIC chars
                 parsedLine = self._splitAlphaAndNumericChars(parsedLine)
                 # split PUNCTUATION chars
-                # parsedLine = self._splitPuntaction(parsedLine)
+                parsedLine = self._splitPuntaction(parsedLine)
                 # replace NUMERIC sequence
                 parsedLine = self._replaceNumericSequence(parsedLine)
                 # replace ALPHA chars
