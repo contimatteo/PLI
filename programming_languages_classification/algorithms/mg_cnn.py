@@ -1,12 +1,14 @@
 # /usr/bin/env python3
 
+import re as regex
 import numpy as np
 from .base import _BaseAlgorithm
 from utils import ConfigurationManager, FileManager
 from utils import FileManager
 import pandas as pd
-from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from keras.preprocessing.sequence import pad_sequences
+from keras.layers import InputLayer
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Flatten
 from keras.layers.embeddings import Embedding
@@ -21,7 +23,7 @@ from keras.callbacks import EarlyStopping
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 50000,
+    'max_features': 500000,
     'max_len_sequences': 512,
     'embed_dim': 256,
     'lstm_out': 64,
@@ -30,11 +32,11 @@ MODEL_CONFIG: dict = {
 }
 
 
-class CNN(_BaseAlgorithm):
+class MG_CNN(_BaseAlgorithm):
 
     def __init__(self):
         super().__init__()
-        self.type = 'CNN'
+        self.type = 'MG_CNN'
         self.config = MODEL_CONFIG.copy()
 
         self.initialize()
@@ -55,7 +57,15 @@ class CNN(_BaseAlgorithm):
         Y = pd.get_dummies(Y)
 
         # prepare model
-        self.__prepareModel(Y)
+        self.__prepareModel(X, Y)
+
+        print('')
+        print(X.shape)
+        # print(np.expand_dims(X, axis=0).shape)
+        print('')
+        print(X[0])
+        # print(X[0:1].shape)
+        print('')
 
         # set early stopping monitor so the model stops training when it won't improve anymore
         early_stopping_monitor = EarlyStopping(monitor='loss', patience=3)
@@ -99,83 +109,62 @@ class CNN(_BaseAlgorithm):
 
         return self
 
-    def __prepareModel(self, Y):
-        max_features: int = self.config['max_features']
-        embed_dim: int = self.config['embed_dim']
-        input_length: int = self.config['max_len_sequences']
-        lstm_out: int = self.config['lstm_out']
-
-        # This is appropriate for a plain stack of layers where each layer has exactly one input and one output tensor.
-        # A Sequential model is not appropriate when:
-        #   - Your model has multiple inputs or multiple outputs
-        #   - Any of your layers has multiple inputs or multiple outputs
-        #   - You need to do layer sharing
-        #   - You want non-linear topology (e.g. a residual connection, a multi-branch model)
+    def __prepareModel(self, X, Y):
         self.model = Sequential()
-        # 
-        # Turns positive integers (indexes) into dense vectors of fixed size.
-        self.model.add(Embedding(max_features, output_dim=embed_dim, input_length=input_length))
-        # 
-        # Creates a convolution kernel that is convolved with the layer input over a single spatial dimension to
-        # produce a tensor of outputs.
-        self.model.add(Conv1D(filters=embed_dim, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
-        # Downsamples the input representation by taking the maximum value over the window defined by pool_size.
-        # The resulting output shape when using the "valid" padding option is:
-        # output_shape = (input_shape - pool_size + 1) / strides)
-        self.model.add(MaxPooling1D(pool_size=4))
-        # 
-        self.model.add(Conv1D(filters=64, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
-        self.model.add(MaxPooling1D(pool_size=2))
-        #
-        self.model.add(LSTM(lstm_out))
-        #
-        # The Dropout layer randomly sets input units to 0 with a frequency of rate at each step during training time,
-        # which helps prevent overfitting. Inputs not set to 0 are scaled up by 1/(1 - rate) such that the sum over
-        # all inputs is unchanged.
-        self.model.add(Dropout(0.5))
-        #
-        # Dense implements the operation: output = activation(dot(input, kernel) + bias) where activation is the
-        # element - wise activation function passed as the activation argument, kernel is a weights matrix created
-        # by the layer,
-        self.model.add(Dense(64))
-        self.model.add(Dense(len(Y.columns), activation='softmax'))
-        # 
+        self.model.add(InputLayer(input_shape=X.shape))
+        self.model.add(Dense(units=1000))
+        self.model.add(Dropout(rate=0.5))
+        self.model.add(Dense(units=800))
+        self.model.add(Dropout(rate=0.5))
+        self.model.add(Dense(units=700))
+        self.model.add(Dropout(rate=0.5))
+        self.model.add(Dense(units=len(Y.columns), activation='softmax'))
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         return self
 
+    # #### #### #### #### #### #### #### #### #### #### #### #### ####
+
+    def extractSources(self, dataset: str):
+        X_raw = []
+        Y_raw = []
+        sources: dict = self.Dataset.getSources(dataset)
+
+        for language in sources:
+            for exampleDict in sources[language]:
+                source = ''
+                for line in str(exampleDict['original']).split('\n'):
+                    source += regex.sub(r'[]!`"\'$%&()*+,./:;=#@?[\\^{|}~-]+', r' \g<0> ', line).strip() + '\n'
+                source = ' '.join([w for w in source.split(' ') if len(w.strip()) > 0])
+                source = source.replace('\n', ' ')
+                #
+                X_raw.append(source)
+                Y_raw.append(language)
+
+        return X_raw, Y_raw
+
     def __prepareFeatures(self, dataset: str, importIndexes=False):
         sources, languages = self.extractSources(dataset)
 
-        # configs
-        max_features: int = self.config['max_features']
-        input_length: int = self.config['max_len_sequences']
-
-        wordsIndexes: dict = {}
-        tokenizer = Tokenizer(num_words=max_features)
+        tokenizer = Tokenizer(num_words=None, filters=[], oov_token='__OOV__')
 
         # tokenization
         if not importIndexes:
             tokenizer.fit_on_texts(sources)
-            wordsIndexes = tokenizer.word_index
+            vocabulary = tokenizer.word_index
             # export words indexes
-            self.exportVocabulary(wordsIndexes)
+            self.exportVocabulary(vocabulary)
         else:
-            wordsIndexes = self.importVocabulary()
+            vocabulary = self.importVocabulary()
 
-        # handle unknown words indexes
-        if importIndexes:
-            wordsIndexesWithUnknownWords: dict = wordsIndexes.copy()
-            for index, source in enumerate(sources):
-                for token in source.split(' '):
-                    if token not in wordsIndexesWithUnknownWords:
-                        wordsIndexesWithUnknownWords[token] = 0
-            #
-            tokenizer.word_index = wordsIndexesWithUnknownWords
+        #
+        # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html
+        # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
+        #
 
         # X + Y
         X = tokenizer.texts_to_sequences(sources)
-        X = pad_sequences(X, maxlen=input_length)
+        # X = tokenizer.texts_to_matrix(sources, mode='freq')
         Y = languages
 
-        return X, Y
+        return np.array(X), np.array(Y)

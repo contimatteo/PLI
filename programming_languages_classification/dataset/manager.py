@@ -37,19 +37,19 @@ class DatasetManager:
         if not datasetAlreadyExists:
             self.__cloneFilesSources()
 
-        if not os.path.exists(FileManager.getDatasetCopyFileUrl()):
-            # load dataset in memory
-            self.__loadInMemory()
+        # if not os.path.exists(FileManager.getDatasetCopyFileUrl()):
+        # load dataset in memory
+        self.__loadInMemory()
             # generate 'filtered' version
-            self.__filterSources()
-
-            # save dataset copy
-            datasetCopy: dict = {'training': self.Dataset.training,  'testing': self.Dataset.testing}
-            FileManager.writeFile(FileManager.getDatasetCopyFileUrl(), json.dumps(datasetCopy))
-        else:
-            datasetCopy = json.loads(FileManager.readFile(FileManager.getDatasetCopyFileUrl()))
-            self.Dataset.training = datasetCopy['training']
-            self.Dataset.testing = datasetCopy['testing']
+        #     self.__filterSources()
+        #
+        #     # save dataset copy
+        #     datasetCopy: dict = {'training': self.Dataset.training,  'testing': self.Dataset.testing}
+        #     FileManager.writeFile(FileManager.getDatasetCopyFileUrl(), json.dumps(datasetCopy))
+        # else:
+        #     datasetCopy = json.loads(FileManager.readFile(FileManager.getDatasetCopyFileUrl()))
+        #     self.Dataset.training = datasetCopy['training']
+        #     self.Dataset.testing = datasetCopy['testing']
 
         return self
 
@@ -74,8 +74,8 @@ class DatasetManager:
         if not os.path.isdir(FileManager.getModelsFolderUrl()):
             os.mkdir(FileManager.getModelsFolderUrl())
 
-        if not os.path.isdir(FileManager.getWordsIndexesFolderUrl()):
-            os.mkdir(FileManager.getWordsIndexesFolderUrl())
+        if not os.path.isdir(FileManager.getVocabularyFolderUrl()):
+            os.mkdir(FileManager.getVocabularyFolderUrl())
 
         if not os.path.isdir(FileManager.getReportsFolderUrl()):
             os.mkdir(FileManager.getReportsFolderUrl())

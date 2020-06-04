@@ -19,8 +19,8 @@ CONFIGURATION = {
     'TRAINING_EXAMPLES_NUMBER': 350
 }
 TOKENIZER_CONFIG = {
-    'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^_{|}~\t\n'
-    # 'filter': '_'
+    # 'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^_{|}~\t\n'
+    'filter': '_'
 }
 
 

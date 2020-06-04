@@ -1,14 +1,15 @@
 # /usr/bin/env python3
 
 import dotenv
-from algorithms import NaiveBayes, SVM, CNN
+from algorithms import NaiveBayes, SVM, CNN, MG_CNN
 
 
 dotenv.load_dotenv()
 ENABLED_MODELS = {
-    'BAYES': True,
-    'SVM': True,
-    'CNN': True,
+    'BAYES': False,
+    'SVM': False,
+    'CNN': False,
+    'MG_CNN': True,
 }
 
 
@@ -71,7 +72,27 @@ if __name__ == "__main__":
 
     #
 
-    if ENABLED_MODELS['BAYES'] or ENABLED_MODELS['SVM'] or ENABLED_MODELS['CNN']:
+    #
+    # MG_CNN
+    #
+
+    if ENABLED_MODELS['MG_CNN']:
+        print(' > ')
+        # initialization
+        print(' >  [MG_CNN]  features initialization ...')
+        mg_cnn: CNN = MG_CNN()
+
+        # training
+        print(' >  [MG_CNN]  training ...')
+        mg_cnn.train()
+
+        # testing
+        print(' >  [MG_CNN]  testing ...')
+        # mg_cnn.test()
+
+    #
+
+    if ENABLED_MODELS['BAYES'] or ENABLED_MODELS['SVM'] or ENABLED_MODELS['CNN'] or ENABLED_MODELS['MG_CNN']:
         print(' > ')
 
     print('')
