@@ -1,5 +1,7 @@
 # /usr/bin/env python3
 
+import json
+from collections import Counter
 import re as regex
 import numpy as np
 from .base import _BaseAlgorithm
@@ -19,6 +21,7 @@ import os
 import keras.preprocessing.text as kpt
 from sklearn.metrics import classification_report
 from keras.callbacks import EarlyStopping
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
@@ -28,7 +31,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 256,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 50,
+    'epochs': 8,
 }
 
 
@@ -59,18 +62,11 @@ class MG_CNN(_BaseAlgorithm):
         # prepare model
         self.__prepareModel(X, Y)
 
-        print('')
-        print(X.shape)
-        # print(np.expand_dims(X, axis=0).shape)
-        print('')
-        print(X[0])
-        # print(X[0:1].shape)
-        print('')
-
         # set early stopping monitor so the model stops training when it won't improve anymore
-        early_stopping_monitor = EarlyStopping(monitor='loss', patience=3)
+        # early_stopping_monitor = EarlyStopping(monitor='loss', patience=3)
         # training
-        history = self.model.fit(X, Y, batch_size, epochs, verbose=1, callbacks=[early_stopping_monitor])
+        # history = self.model.fit(X, Y, batch_size, epochs, verbose=1, callbacks=[early_stopping_monitor])
+        history = self.model.fit(X, Y, batch_size, epochs, verbose=1)
         print('\n' + str(self.model.summary()))
 
         # export the trained model
@@ -111,8 +107,8 @@ class MG_CNN(_BaseAlgorithm):
 
     def __prepareModel(self, X, Y):
         self.model = Sequential()
-        self.model.add(InputLayer(input_shape=X.shape))
-        self.model.add(Dense(units=1000))
+        # self.model.add(InputLayer(input_shape=(X.shape[1],)))
+        self.model.add(Dense(units=1000, input_shape=(X.shape[1],)))
         self.model.add(Dropout(rate=0.5))
         self.model.add(Dense(units=800))
         self.model.add(Dropout(rate=0.5))
@@ -134,7 +130,8 @@ class MG_CNN(_BaseAlgorithm):
             for exampleDict in sources[language]:
                 source = ''
                 for line in str(exampleDict['original']).split('\n'):
-                    source += regex.sub(r'[]!`"\'$%&()*+,./:;=#@?[\\^{|}~-]+', r' \g<0> ', line).strip() + '\n'
+                    source += ' '.join(regex.findall(r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+', line)).strip()
+                    source += '\n'
                 source = ' '.join([w for w in source.split(' ') if len(w.strip()) > 0])
                 source = source.replace('\n', ' ')
                 #
@@ -146,25 +143,81 @@ class MG_CNN(_BaseAlgorithm):
     def __prepareFeatures(self, dataset: str, importIndexes=False):
         sources, languages = self.extractSources(dataset)
 
-        tokenizer = Tokenizer(num_words=None, filters=[], oov_token='__OOV__')
-
         # tokenization
-        if not importIndexes:
-            tokenizer.fit_on_texts(sources)
-            vocabulary = tokenizer.word_index
+        if importIndexes:
+            vocabulary = self.importVocabulary()
+        else:
+            OCCURENCE_THRESHOLD_1_GRAM = 0.01
+            OCCURENCE_THRESHOLD_2_GRAM = 0.001
+
+            sourcesByLanguage = {}
+
+            for index, source in enumerate(sources):
+                language = languages[index]
+                if language not in sourcesByLanguage:
+                    sourcesByLanguage[language]: list = []
+                sourcesByLanguage[language].append(source)
+
+            vocabulary_index = -1
+            vocabulary: dict = {}
+            tokensOccurrencesByLanguage = {}
+
+            for language in sourcesByLanguage:
+                currentSources = sourcesByLanguage[language]
+                tokensOccurrencesByLanguage[language] = {}
+                vocabulary_for_this_language = set()
+
+                for source in currentSources:
+                    tokens = source.split(' ')
+                    for tokenIndex in range(0, len(tokens) - 1):
+                        token_1gram = str(tokens[tokenIndex])
+                        vocabulary_for_this_language.add(token_1gram)
+                        if tokenIndex + 1 < len(tokens):
+                            token_2gram = str(tokens[tokenIndex] + ' ' + tokens[tokenIndex + 1])
+                            vocabulary_for_this_language.add(token_2gram)
+
+                for source in currentSources:
+                    for token in vocabulary_for_this_language:
+                        if token in source:
+                            if token not in tokensOccurrencesByLanguage[language]:
+                                tokensOccurrencesByLanguage[language][token] = 0
+                            tokensOccurrencesByLanguage[language][token] += 1
+
+                for token in tokensOccurrencesByLanguage[language]:
+                    tokenOccurrence = tokensOccurrencesByLanguage[language][token]
+                    tokenFreq = tokenOccurrence / len(sources)
+
+                    FREQUENCY_THRESHOLD = 1
+                    if len(token.split(' ')) == 1:
+                        FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_1_GRAM
+                    elif len(token.split(' ')) == 2:
+                        FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_2_GRAM
+
+                    if tokenFreq > FREQUENCY_THRESHOLD:
+                        if token not in vocabulary:
+                            vocabulary_index += 1
+                            vocabulary[token] = vocabulary_index
+
             # export words indexes
             self.exportVocabulary(vocabulary)
-        else:
-            vocabulary = self.importVocabulary()
 
-        #
-        # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html
-        # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-        #
+        X = []
+
+        for index, source in enumerate(sources):
+            features = []
+            Vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 2), lowercase=False, stop_words=None, vocabulary=vocabulary)
+            Vectorizer.fit_transform([source])
+            tokensCount = len(Vectorizer.get_feature_names())
+            for token in vocabulary:
+                occurence = source.count(token)
+                if tokensCount > 0:
+                    features.append(occurence / tokensCount)
+                else:
+                    features.append(0)
+            X.append(features)
 
         # X + Y
-        X = tokenizer.texts_to_sequences(sources)
-        # X = tokenizer.texts_to_matrix(sources, mode='freq')
+        # X = pad_sequences(X, maxlen=len(vocabulary.keys()))
         Y = languages
 
         return np.array(X), np.array(Y)

@@ -6,9 +6,9 @@ from algorithms import NaiveBayes, SVM, CNN, MG_CNN
 
 dotenv.load_dotenv()
 ENABLED_MODELS = {
-    'BAYES': False,
-    'SVM': False,
-    'CNN': False,
+    'BAYES': True,
+    'SVM': True,
+    'CNN': True,
     'MG_CNN': True,
 }
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         # testing
         print(' >  [MG_CNN]  testing ...')
-        # mg_cnn.test()
+        mg_cnn.test()
 
     #
 
