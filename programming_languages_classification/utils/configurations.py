@@ -15,8 +15,7 @@ ESCAPED_TOKENS = {
     'NOT_RELEVANT': '__nr__',
 }
 CONFIGURATION = {
-    'FEATURE_FREQUENCY_THRESHOLD': 0.1,
-    'TRAINING_EXAMPLES_NUMBER': 350
+    'TRAINING_EXAMPLES_NUMBER': 400
 }
 TOKENIZER_CONFIG = {
     # 'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^{|}~\t\n'

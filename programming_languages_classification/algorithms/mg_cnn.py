@@ -97,8 +97,8 @@ class MG_CNN(_BaseAlgorithm):
         # metrics
         loss, accuracy = self.model.evaluate(X, Y_real, verbose=0, batch_size=batch_size)
         report = classification_report(Y_real_binary_list, Y_predicted_binary_list, target_names=target_names)
-        print(' >  [CNN]  classification report exported!')
-        print(' >  [CNN]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        print(' >  [MG_CNN]  classification report exported!')
+        print(' >  [MG_CNN]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
 
         # export the classification report
         self.exportClassificationReport(str(report))
@@ -217,7 +217,6 @@ class MG_CNN(_BaseAlgorithm):
             X.append(features)
 
         # X + Y
-        # X = pad_sequences(X, maxlen=len(vocabulary.keys()))
         Y = languages
 
         return np.array(X), np.array(Y)

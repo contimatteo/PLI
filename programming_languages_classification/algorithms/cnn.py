@@ -151,26 +151,16 @@ class CNN(_BaseAlgorithm):
         max_len_sequences: int = self.config['max_len_sequences']
 
         wordsIndexes: dict = {}
-        tokenizer = Tokenizer(num_words=max_features)
+        tokenizer = Tokenizer(num_words=max_features, oov_token='UNKNOWN')
 
         # tokenization
         if not importIndexes:
             tokenizer.fit_on_texts(sources)
-            wordsIndexes = tokenizer.word_index
-            # export words indexes
-            self.exportVocabulary(wordsIndexes)
+            # export vocabulary
+            self.exportVocabulary(tokenizer.word_index)
         else:
-            wordsIndexes = self.importVocabulary()
-
-        # handle unknown words indexes
-        if importIndexes:
-            wordsIndexesWithUnknownWords: dict = wordsIndexes.copy()
-            for index, source in enumerate(sources):
-                for token in source.split(' '):
-                    if token not in wordsIndexesWithUnknownWords:
-                        wordsIndexesWithUnknownWords[token] = 0
-            #
-            tokenizer.word_index = wordsIndexesWithUnknownWords
+            # import vocabulary
+            tokenizer.word_index = self.importVocabulary()
 
         # X + Y
         X = tokenizer.texts_to_sequences(sources)
