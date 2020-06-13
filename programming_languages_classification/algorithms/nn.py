@@ -24,6 +24,7 @@ from keras.callbacks import EarlyStopping
 from sklearn.feature_extraction.text import CountVectorizer
 
 
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
     'max_features': 500000,
@@ -35,11 +36,11 @@ MODEL_CONFIG: dict = {
 }
 
 
-class MG_CNN(_BaseAlgorithm):
+class NN(_BaseAlgorithm):
 
     def __init__(self):
         super().__init__()
-        self.type = 'MG_CNN'
+        self.type = 'NN'
         self.config = MODEL_CONFIG.copy()
 
         self.initialize()
@@ -97,8 +98,8 @@ class MG_CNN(_BaseAlgorithm):
         # metrics
         loss, accuracy = self.model.evaluate(X, Y_real, verbose=0, batch_size=batch_size)
         report = classification_report(Y_real_binary_list, Y_predicted_binary_list, target_names=target_names)
-        print(' >  [MG_CNN]  classification report exported!')
-        print(' >  [MG_CNN]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        print(' >  [NN]  classification report exported!')
+        print(' >  [NN]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
 
         # export the classification report
         self.exportClassificationReport(str(report))
@@ -121,91 +122,109 @@ class MG_CNN(_BaseAlgorithm):
 
     # #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-    def extractSources(self, dataset: str):
-        X_raw = []
-        Y_raw = []
-        sources: dict = self.Dataset.getSources(dataset)
+    # def extractSources(self, dataset: str):
+    #     X_raw = []
+    #     Y_raw = []
+    #     sources: dict = self.Dataset.getSources(dataset)
 
-        for language in sources:
-            for exampleDict in sources[language]:
-                source = ''
-                for line in str(exampleDict['original']).split('\n'):
-                    source += ' '.join(regex.findall(r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+', line)).strip()
-                    source += '\n'
-                source = ' '.join([w for w in source.split(' ') if len(w.strip()) > 0])
-                source = source.replace('\n', ' ')
-                #
-                X_raw.append(source)
-                Y_raw.append(language)
+    #     for language in sources:
+    #         for exampleDict in sources[language]:
+    #             source = ''
+    #             for line in str(exampleDict['original']).split('\n'):
+    #                 source += ' '.join(regex.findall(r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+', line)).strip()
+    #                 source += '\n'
+    #             source = ' '.join([w for w in source.split(' ') if len(w.strip()) > 0])
+    #             source = source.replace('\n', ' ')
+    #             #
+    #             X_raw.append(source)
+    #             Y_raw.append(language)
 
-        return X_raw, Y_raw
+    #     return X_raw, Y_raw
 
     def __prepareFeatures(self, dataset: str, importIndexes=False):
-        sources, languages = self.extractSources(dataset)
+        sources, languages = self.extractSources(dataset, sourceType='filtered')
 
-        # tokenization
-        if importIndexes:
-            vocabulary = self.importVocabulary()
-        else:
-            OCCURENCE_THRESHOLD_1_GRAM = 0.01
-            OCCURENCE_THRESHOLD_2_GRAM = 0.001
+        # # tokenization
+        # if importIndexes:
+        #     vocabulary = self.importVocabulary()
+        # else:
+        #     OCCURENCE_THRESHOLD_1_GRAM = 0.01
+        #     OCCURENCE_THRESHOLD_2_GRAM = 0.001
 
-            sourcesByLanguage = {}
+        #     sourcesByLanguage = {}
 
-            for index, source in enumerate(sources):
-                language = languages[index]
-                if language not in sourcesByLanguage:
-                    sourcesByLanguage[language]: list = []
-                sourcesByLanguage[language].append(source)
+        #     for index, source in enumerate(sources):
+        #         language = languages[index]
+        #         if language not in sourcesByLanguage:
+        #             sourcesByLanguage[language]: list = []
+        #         sourcesByLanguage[language].append(source)
 
-            vocabulary_index = -1
-            vocabulary: dict = {}
-            tokensOccurrencesByLanguage = {}
+        #     vocabulary_index = -1
+        #     vocabulary: dict = {}
+        #     tokensOccurrencesByLanguage = {}
 
-            for language in sourcesByLanguage:
-                currentSources = sourcesByLanguage[language]
-                tokensOccurrencesByLanguage[language] = {}
-                vocabulary_for_this_language = set()
+        #     for language in sourcesByLanguage:
+        #         currentSources = sourcesByLanguage[language]
+        #         tokensOccurrencesByLanguage[language] = {}
+        #         vocabulary_for_this_language = set()
 
-                for source in currentSources:
-                    tokens = source.split(' ')
-                    for tokenIndex in range(0, len(tokens) - 1):
-                        token_1gram = str(tokens[tokenIndex])
-                        vocabulary_for_this_language.add(token_1gram)
-                        if tokenIndex + 1 < len(tokens):
-                            token_2gram = str(tokens[tokenIndex] + ' ' + tokens[tokenIndex + 1])
-                            vocabulary_for_this_language.add(token_2gram)
+        #         for source in currentSources:
+        #             tokens = source.split(' ')
+        #             for tokenIndex in range(0, len(tokens) - 1):
+        #                 token_1gram = str(tokens[tokenIndex])
+        #                 vocabulary_for_this_language.add(token_1gram)
+        #                 if tokenIndex + 1 < len(tokens):
+        #                     token_2gram = str(tokens[tokenIndex] + ' ' + tokens[tokenIndex + 1])
+        #                     vocabulary_for_this_language.add(token_2gram)
 
-                for source in currentSources:
-                    for token in vocabulary_for_this_language:
-                        if token in source:
-                            if token not in tokensOccurrencesByLanguage[language]:
-                                tokensOccurrencesByLanguage[language][token] = 0
-                            tokensOccurrencesByLanguage[language][token] += 1
+        #         for source in currentSources:
+        #             for token in vocabulary_for_this_language:
+        #                 if token in source:
+        #                     if token not in tokensOccurrencesByLanguage[language]:
+        #                         tokensOccurrencesByLanguage[language][token] = 0
+        #                     tokensOccurrencesByLanguage[language][token] += 1
 
-                for token in tokensOccurrencesByLanguage[language]:
-                    tokenOccurrence = tokensOccurrencesByLanguage[language][token]
-                    tokenFreq = tokenOccurrence / len(sources)
+        #         for token in tokensOccurrencesByLanguage[language]:
+        #             tokenOccurrence = tokensOccurrencesByLanguage[language][token]
+        #             tokenFreq = tokenOccurrence / len(sources)
 
-                    FREQUENCY_THRESHOLD = 1
-                    if len(token.split(' ')) == 1:
-                        FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_1_GRAM
-                    elif len(token.split(' ')) == 2:
-                        FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_2_GRAM
+        #             FREQUENCY_THRESHOLD = 1
+        #             if len(token.split(' ')) == 1:
+        #                 FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_1_GRAM
+        #             elif len(token.split(' ')) == 2:
+        #                 FREQUENCY_THRESHOLD = OCCURENCE_THRESHOLD_2_GRAM
 
-                    if tokenFreq > FREQUENCY_THRESHOLD:
-                        if token not in vocabulary:
-                            vocabulary_index += 1
-                            vocabulary[token] = vocabulary_index
+        #             if tokenFreq > FREQUENCY_THRESHOLD:
+        #                 if token not in vocabulary:
+        #                     vocabulary_index += 1
+        #                     vocabulary[token] = vocabulary_index
 
-            # export words indexes
+        #     # export words indexes
+        #     self.exportVocabulary(vocabulary)
+
+
+        # configs
+        max_features: int = self.config['max_features']
+
+        vocabulary: dict = {}
+        tokenizer = Tokenizer(num_words=max_features, oov_token='UNKNOWN')
+
+        if not importIndexes:
+            tokenizer.fit_on_texts(sources)
+            vocabulary = tokenizer.word_index
+            vocabulary['__BUGFIX__'] = 0;
+            # export vocabulary
             self.exportVocabulary(vocabulary)
+        else:
+            # import vocabulary
+            vocabulary = self.importVocabulary()
+            tokenizer.word_index = vocabulary
 
         X = []
 
         for index, source in enumerate(sources):
             features = []
-            Vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 2), lowercase=False, stop_words=None, vocabulary=vocabulary)
+            Vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 1), lowercase=False, stop_words=None, vocabulary=vocabulary)
             Vectorizer.fit_transform([source])
             tokensCount = len(Vectorizer.get_feature_names())
             for token in vocabulary:

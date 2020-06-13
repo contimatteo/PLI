@@ -193,7 +193,7 @@ class DatasetManager:
 
         tokenOccurrencies: dict = {}
         tokensWithLowRelevance = {}
-        relevanceOccurencyThreshold = 2
+        relevanceOccurencyThreshold = 5
 
         # count tokens occurrency
         if tmpTokenOccurrencies is None:
