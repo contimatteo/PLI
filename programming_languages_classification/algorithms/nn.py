@@ -32,7 +32,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 256,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 8,
+    'epochs': 16,
 }
 
 
@@ -212,7 +212,7 @@ class NN(_BaseAlgorithm):
         if not importIndexes:
             tokenizer.fit_on_texts(sources)
             vocabulary = tokenizer.word_index
-            vocabulary['__BUGFIX__'] = 0;
+            vocabulary['__UNKNOWN__'] = 0;
             # export vocabulary
             self.exportVocabulary(vocabulary)
         else:
