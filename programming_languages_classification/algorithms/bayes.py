@@ -98,12 +98,12 @@ class NaiveBayes(_BaseAlgorithm):
             tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
             tokenizer.fit_on_texts(sources)
             # export words indexes
-            self.exportWordsIndexes(tokenizer.word_index)
+            self.exportVocabulary(tokenizer.word_index)
             # set the indexes
             wordsIndexes = tokenizer.word_index
         else:
             # import and set the words indexes
-            wordsIndexes = self.importWordsIndexes()
+            wordsIndexes = self.importVocabulary()
 
         # sort the dict by the words indexes
         wordsIndexesSortedByIndex = {k: v for k, v in sorted(wordsIndexes.items(), key=lambda item: item[1])}

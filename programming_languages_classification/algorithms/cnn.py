@@ -26,7 +26,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 256,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 10,
+    'epochs': 8,
 }
 
 
@@ -55,7 +55,7 @@ class CNN(_BaseAlgorithm):
         Y = pd.get_dummies(Y)
 
         # prepare model
-        self.__prepareModel(Y)
+        self.__prepareModel(X, Y)
 
         # set early stopping monitor so the model stops training when it won't improve anymore
         early_stopping_monitor = EarlyStopping(monitor='loss', patience=3)
@@ -99,10 +99,9 @@ class CNN(_BaseAlgorithm):
 
         return self
 
-    def __prepareModel(self, Y):
+    def __prepareModel(self, X, Y):
         max_features: int = self.config['max_features']
         embed_dim: int = self.config['embed_dim']
-        input_length: int = self.config['max_len_sequences']
         lstm_out: int = self.config['lstm_out']
 
         # This is appropriate for a plain stack of layers where each layer has exactly one input and one output tensor.
@@ -114,7 +113,7 @@ class CNN(_BaseAlgorithm):
         self.model = Sequential()
         # 
         # Turns positive integers (indexes) into dense vectors of fixed size.
-        self.model.add(Embedding(max_features, output_dim=embed_dim, input_length=input_length))
+        self.model.add(Embedding(max_features, output_dim=embed_dim, input_length=X.shape[1]))
         # 
         # Creates a convolution kernel that is convolved with the layer input over a single spatial dimension to
         # produce a tensor of outputs.
@@ -149,33 +148,23 @@ class CNN(_BaseAlgorithm):
 
         # configs
         max_features: int = self.config['max_features']
-        input_length: int = self.config['max_len_sequences']
+        max_len_sequences: int = self.config['max_len_sequences']
 
         wordsIndexes: dict = {}
-        tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
+        tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'], oov_token='UNKNOWN')
 
         # tokenization
         if not importIndexes:
             tokenizer.fit_on_texts(sources)
-            wordsIndexes = tokenizer.word_index
-            # export words indexes
-            self.exportWordsIndexes(wordsIndexes)
+            # export vocabulary
+            self.exportVocabulary(tokenizer.word_index)
         else:
-            wordsIndexes = self.importWordsIndexes()
-
-        # handle unknown words indexes
-        if importIndexes:
-            wordsIndexesWithUnknownWords: dict = wordsIndexes.copy()
-            for index, source in enumerate(sources):
-                for token in source.split(' '):
-                    if token not in wordsIndexesWithUnknownWords:
-                        wordsIndexesWithUnknownWords[token] = 0
-            #
-            tokenizer.word_index = wordsIndexesWithUnknownWords
+            # import vocabulary
+            tokenizer.word_index = self.importVocabulary()
 
         # X + Y
         X = tokenizer.texts_to_sequences(sources)
-        X = pad_sequences(X, maxlen=input_length)
+        X = pad_sequences(X, maxlen=max_len_sequences)
         Y = languages
 
-        return X, Y
+        return np.array(X), np.array(Y)
