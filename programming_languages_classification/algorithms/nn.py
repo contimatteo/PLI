@@ -222,11 +222,22 @@ class NN(_BaseAlgorithm):
 
         X = []
 
+        # for index, source in enumerate(sources):
+        #     features = []
+        #     Vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 1), lowercase=False, stop_words=None, vocabulary=vocabulary)
+        #     Vectorizer.fit_transform([source])
+        #     tokensCount = len(Vectorizer.get_feature_names())
+        #     for token in vocabulary:
+        #         occurence = source.count(token)
+        #         if tokensCount > 0:
+        #             features.append(occurence / tokensCount)
+        #         else:
+        #             features.append(0)
+        #     X.append(features)
+
         for index, source in enumerate(sources):
             features = []
-            Vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 1), lowercase=False, stop_words=None, vocabulary=vocabulary)
-            Vectorizer.fit_transform([source])
-            tokensCount = len(Vectorizer.get_feature_names())
+            tokensCount = len(source.split(' '))
             for token in vocabulary:
                 occurence = source.count(token)
                 if tokensCount > 0:

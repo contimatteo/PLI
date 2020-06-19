@@ -22,7 +22,7 @@ TOKENIZER_CONFIG = {
     # 'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^{|}~\t\n',
     # 'puntaction': r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+',
     # with special characters 
-    'filter': '_',
+    'filter': '',
     'puntaction': r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+',
 }
 
