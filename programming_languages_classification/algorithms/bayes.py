@@ -95,7 +95,7 @@ class NaiveBayes(_BaseAlgorithm):
         wordsIndexes = {}
         if not importWordsIndexes:
             # tokenization
-            tokenizer = Tokenizer(num_words=max_features)
+            tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
             tokenizer.fit_on_texts(sources)
             # export words indexes
             self.exportVocabulary(tokenizer.word_index)

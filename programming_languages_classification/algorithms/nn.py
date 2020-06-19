@@ -207,7 +207,7 @@ class NN(_BaseAlgorithm):
         max_features: int = self.config['max_features']
 
         vocabulary: dict = {}
-        tokenizer = Tokenizer(num_words=max_features, oov_token='UNKNOWN')
+        tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'], oov_token='UNKNOWN')
 
         if not importIndexes:
             tokenizer.fit_on_texts(sources)

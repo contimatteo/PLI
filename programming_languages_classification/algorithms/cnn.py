@@ -126,12 +126,12 @@ class CNN(_BaseAlgorithm):
         self.model.add(Conv1D(filters=64, kernel_size=3, padding='same', dilation_rate=1, activation='relu'))
         self.model.add(MaxPooling1D(pool_size=2))
         #
-        self.model.add(LSTM(lstm_out))
+        # self.model.add(LSTM(lstm_out))
         #
         # The Dropout layer randomly sets input units to 0 with a frequency of rate at each step during training time,
         # which helps prevent overfitting. Inputs not set to 0 are scaled up by 1/(1 - rate) such that the sum over
         # all inputs is unchanged.
-        self.model.add(Dropout(0.5))
+        self.model.add(Dropout(0.2))
         #
         # Dense implements the operation: output = activation(dot(input, kernel) + bias) where activation is the
         # element - wise activation function passed as the activation argument, kernel is a weights matrix created
@@ -151,7 +151,7 @@ class CNN(_BaseAlgorithm):
         max_len_sequences: int = self.config['max_len_sequences']
 
         wordsIndexes: dict = {}
-        tokenizer = Tokenizer(num_words=max_features, oov_token='UNKNOWN')
+        tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'], oov_token='UNKNOWN')
 
         # tokenization
         if not importIndexes:
