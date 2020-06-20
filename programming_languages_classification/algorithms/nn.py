@@ -22,6 +22,7 @@ import keras.preprocessing.text as kpt
 from sklearn.metrics import classification_report
 from keras.callbacks import EarlyStopping
 from sklearn.feature_extraction.text import CountVectorizer
+from keras.optimizers import Adam
 
 
 ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
@@ -32,7 +33,7 @@ MODEL_CONFIG: dict = {
     'embed_dim': 256,
     'lstm_out': 64,
     'batch_size': 32,
-    'epochs': 16,
+    'epochs': 8,
 }
 
 
@@ -108,7 +109,6 @@ class NN(_BaseAlgorithm):
 
     def __prepareModel(self, X, Y):
         self.model = Sequential()
-        # self.model.add(InputLayer(input_shape=(X.shape[1],)))
         self.model.add(Dense(units=1000, input_shape=(X.shape[1],)))
         self.model.add(Dropout(rate=0.5))
         self.model.add(Dense(units=800))
@@ -116,7 +116,7 @@ class NN(_BaseAlgorithm):
         self.model.add(Dense(units=700))
         self.model.add(Dropout(rate=0.5))
         self.model.add(Dense(units=len(Y.columns), activation='softmax'))
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.0001), metrics=['accuracy'])
 
         return self
 
@@ -142,7 +142,7 @@ class NN(_BaseAlgorithm):
     #     return X_raw, Y_raw
 
     def __prepareFeatures(self, dataset: str, importIndexes=False):
-        sources, languages = self.extractSources(dataset, sourceType='filtered')
+        sources, languages = self.extractSources(dataset, sourceType='parsed')
 
         # # tokenization
         # if importIndexes:
