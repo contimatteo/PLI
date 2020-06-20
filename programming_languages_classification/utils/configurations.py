@@ -18,12 +18,11 @@ CONFIGURATION = {
     'TRAINING_EXAMPLES_NUMBER': 400
 }
 TOKENIZER_CONFIG = {
-    # without special characters
-    # 'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^{|}~\t\n',
-    # 'puntaction': r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+',
-    # with special characters 
-    'filter': '',
     'puntaction': r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+',
+    # without specials
+    'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^{|}~\t\n',
+    # with specials 
+    # 'filter': '',
 }
 
 
