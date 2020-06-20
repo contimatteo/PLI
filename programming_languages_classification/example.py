@@ -1,14 +1,14 @@
 # /usr/bin/env python3
 
 import dotenv
-from algorithms import NaiveBayes, SVM, CNN
+from algorithms import NaiveBayes, SVM, CNN, NN
 
 
 dotenv.load_dotenv()
 ENABLED_MODELS = {
     'BAYES': True,
     'SVM': True,
-    'CNN': True,
+    'NN': True,
 }
 
 
@@ -52,26 +52,26 @@ if __name__ == "__main__":
         svm.test()
 
     #
-    # CNN
+    # NN
     #
 
-    if ENABLED_MODELS['CNN']:
+    if ENABLED_MODELS['NN']:
         print(' > ')
         # initialization
-        print(' >  [CNN]  features initialization ...')
-        cnn: CNN = CNN()
+        print(' >  [NN]  features initialization ...')
+        nn: CNN = NN()
 
         # training
-        print(' >  [CNN]  training ...')
-        cnn.train()
+        print(' >  [NN]  training ...')
+        nn.train()
 
         # testing
-        print(' >  [CNN]  testing ...')
-        cnn.test()
+        print(' >  [NN]  testing ...')
+        nn.test()
 
     #
 
-    if ENABLED_MODELS['BAYES'] or ENABLED_MODELS['SVM'] or ENABLED_MODELS['CNN']:
+    if ENABLED_MODELS['BAYES'] or ENABLED_MODELS['SVM'] or ENABLED_MODELS['NN']:
         print(' > ')
 
     print('')

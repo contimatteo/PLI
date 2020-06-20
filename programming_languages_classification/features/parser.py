@@ -51,7 +51,8 @@ class Parser:
         return ' '.join(words)
 
     def _splitPuntaction(self, line: str):
-        newLine = regex.sub(r'[]!"$%&\'()*+,./:;=#@?[\\^_`{|}~-]+', r' \g<0> ', line).strip()
+        # newLine = regex.sub(r'[]!"$%&\'()*+,./:;=#@?[\\^_`{|}~-]+', r' \g<0> ', line).strip()
+        newLine = ' '.join(regex.findall(TOKENIZER_CONFIG['puntaction'], line)).strip()
         return self._removeMultipleSpacesFrom(newLine)
 
     def _replaceNumericSequence(self, line: str):
@@ -109,7 +110,7 @@ class Parser:
                 # split ALPHA and NUMERIC chars
                 parsedLine = self._splitAlphaAndNumericChars(parsedLine)
                 # split PUNCTUATION chars
-                # parsedLine = self._splitPuntaction(parsedLine)
+                parsedLine = self._splitPuntaction(parsedLine)
                 # replace NUMERIC sequence
                 parsedLine = self._replaceNumericSequence(parsedLine)
                 # replace ALPHA chars

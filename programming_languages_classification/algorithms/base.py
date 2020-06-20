@@ -33,11 +33,11 @@ class _BaseAlgorithm:
 
     #
 
-    def importWordsIndexes(self):
-        return json.loads(FileManager.readFile(FileManager.getWordsIndexesFileUrl(self.type)))
+    def importVocabulary(self):
+        return json.loads(FileManager.readFile(FileManager.getVocabularyFileUrl(self.type)))
 
-    def exportWordsIndexes(self, indexes):
-        FileManager.writeFile(FileManager.getWordsIndexesFileUrl(self.type), json.dumps(indexes))
+    def exportVocabulary(self, indexes):
+        FileManager.writeFile(FileManager.getVocabularyFileUrl(self.type), json.dumps(indexes))
         return self
 
     def importKerasTrainedModel(self):
