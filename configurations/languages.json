@@ -6,13 +6,11 @@
   "BBC-BASIC",
   "C",
   "C++",
-  "C-sharp",
   "Clojure",
   "Common-Lisp",
   "D",
   "Elixir",
   "Erlang",
-  "F-Sharp",
   "Factor",
   "Forth",
   "Fortran",
@@ -31,7 +29,6 @@
   "Nim",
   "OCaml",
   "PARI-GP",
-  "Pascal",
   "Perl",
   "Perl-6",
   "Phix",
@@ -49,6 +46,5 @@
   "Sidef",
   "Swift",
   "Tcl",
-  "Unicon",
   "Zkl"
 ]
