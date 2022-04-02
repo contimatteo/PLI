@@ -1,90 +1,94 @@
-# Programming Languages Classification
+# Programming Language Identification
 
-One Paragraph of project description goes here
+## Introduction
+
+Motivated by the amount of code that goes unidentified on the web, I have explored the existing practical methods for algorithmically identifying the programming language of source code.
+
+### Literature
+
+*"Programming Language Identification (PLI)—also referred to as Source Code Classification (SCC) in the literature—is the problem of identifying the programming language in which a given source code file, or just a short code snippet, is written in. PLI is a common preliminary need in automated program comprehension and also a relevant practical problem for both practitioners and researchers, with important applications in programming trend analysis (Chen et al., 2005), mining software repositories (Mockus, 2009; Caneill, Germn & Zacchiroli, 2017), source code indexing, and code search (Gallardo-Valencia & Sim, 2009; Kononenko et al., 2014)."* ([Del Bonifro et al., 2021](https://upsilon.cc/~zack/research/publications/img-based-lang-detection.pdf))
+
+
+<br/>
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### Prerequisites
+### PREREQUISITES
 
-What things you need to install the software and how to install them
+Download the Rosetta submodule:
 
 ```
-$ git pull --recurse-submodules
+$ git submodule update --init --recursive
 ```
 
-### Installing
+you can find all the references for the Rosetta project at [this link](http://www.rosettacode.org/wiki/Rosetta_Code).
 
-A step by step series of examples that tell you how to get a development env running
+#### Apple M1
 
-Say what the step will be
+If you are using the new Apple M1 chip please be sure to have installed `hdf5` by running:
+```
+$ brew install hdf5
+```
 
+### INSTALLING
+
+Create and enable the virtual environment:
 ```
 $ mkdir venv
 $ python -m venv venv
 $ source venv/bin/activate
 ```
 
-And repeat
-
+below you can find all the scripts for installing based on your OS/processor
 ```
-$ pip install -r requirements.txt
+$ make
+  >  +------------------------------------------------------+
+  >  |         OS         |  Hardware  |    Setup Command   |
+  >  +------------------------------------------------------+
+  >  |   Windows/Linux    |   - GPU    |  'make setup.CPU'  |
+  >  |    Apple macOS     |    + M1    |  'make setup.M1'   |
+  >  |    Apple macOS     |    - M1    |  'make setup.CPU'  |
+  >  +------------------------------------------------------+
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+for instance if you have MacOS with Intel chip you have to run:
+```
+$ make setup.CPU
+```
+
+<br/>
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+You can train/test the program by running:
 ```
-Give an example
+$ make run
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
+or alternatively
 ```
-Give an example
+$ python programming_languages_classification/main.py
 ```
 
-## Deployment
-
-Add additional notes about how to deploy this on a live system
+<br/>
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Tensorflow](https://github.com/tensorflow/tensorflow) - Open Source ML Framework
+* [Rosetta](https://github.com/acmeism/RosettaCodeData) - RosettaCode Dataset
 
-## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+<br/>
 
 ## Authors
 
-* **Matteo Conti** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* Matteo Conti - *author* - [contimatteo](https://github.com/contimatteo)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+
+<br/>
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
-
