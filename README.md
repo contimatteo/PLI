@@ -76,8 +76,8 @@ $ python programming_languages_classification/main.py
 
 ## Built With
 
-* [Tensorflow](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Rosetta](https://maven.apache.org/) - Dependency Management
+* [Tensorflow](https://github.com/tensorflow/tensorflow) - Open Source ML Framework
+* [Rosetta](https://github.com/acmeism/RosettaCodeData) - RosettaCode Dataset
 
 
 <br/>
