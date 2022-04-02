@@ -6,10 +6,10 @@ Motivated by the amount of code that goes unidentified on the web, I have explor
 
 ### Literature
 
-*"Programming Language Identification (PLI)—also referred to as Source Code Classification (SCC) in the literature—is the problem of identifying the programming language in which a given source code file, or just a short code snippet, is written in. PLI is a common preliminary need in automated program comprehension and also a relevant practical problem for both practitioners and researchers, with important applications in programming trend analysis (Chen et al., 2005), mining software repositories (Mockus, 2009; Caneill, Germn & Zacchiroli, 2017), source code indexing, and code search (Gallardo-Valencia & Sim, 2009; Kononenko et al., 2014)."* ([Del Bonifro et al., 2021](https://upsilon.cc/~zack/research/publications/img-based-lang-detection.pdf))
+*Programming Language Identification (PLI)—also referred to as Source Code Classification (SCC) in the literature—is the problem of identifying the programming language in which a given source code file, or just a short code snippet, is written in. PLI is a common preliminary need in automated program comprehension and also a relevant practical problem for both practitioners and researchers, with important applications in programming trend analysis (Chen et al., 2005), mining software repositories (Mockus, 2009; Caneill, Germn & Zacchiroli, 2017), source code indexing, and code search (Gallardo-Valencia & Sim, 2009; Kononenko et al., 2014).* 
 
+([Del Bonifro et al., 2021](https://upsilon.cc/~zack/research/publications/img-based-lang-detection.pdf))
 
-<br/>
 
 ## Getting Started
 
@@ -58,7 +58,6 @@ for instance if you have MacOS with Intel chip you have to run:
 $ make setup.CPU
 ```
 
-<br/>
 
 ## Running the tests
 
@@ -72,7 +71,6 @@ or alternatively
 $ python programming_languages_classification/main.py
 ```
 
-<br/>
 
 ## Built With
 
@@ -80,14 +78,10 @@ $ python programming_languages_classification/main.py
 * [Rosetta](https://github.com/acmeism/RosettaCodeData) - RosettaCode Dataset
 
 
-<br/>
-
 ## Authors
 
 * Matteo Conti - *author* - [contimatteo](https://github.com/contimatteo)
 
-
-<br/>
 
 ## License
 
