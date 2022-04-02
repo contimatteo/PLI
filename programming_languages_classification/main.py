@@ -1,62 +1,78 @@
 # /usr/bin/env python3
 
-# from solver import ProblemSolver
-from algorithms import NaiveBayes, SVM, CNN
+import dotenv
+from algorithms import NaiveBayes, SVM, CNN, NN
+
+
+dotenv.load_dotenv()
+ENABLED_MODELS = {
+    'BAYES': True,
+    'SVM': True,
+    'NN': True,
+}
 
 
 if __name__ == "__main__":
-    print('\n')
-    print(' > ')
+    print('')
 
     #
     # BAYES
+    #
 
-    # initialization
-    print(' >  [BAYES]  features initialization ...')
-    naiveBayes = NaiveBayes()
+    if ENABLED_MODELS['BAYES']:
+        print(' > ')
+        # initialization
+        print(' >  [BAYES]  features initialization ...')
+        naiveBayes = NaiveBayes()
 
-    # training
-    print(' >  [BAYES]  training ...')
-    naiveBayes.train()
+        # training
+        print(' >  [BAYES]  training ...')
+        naiveBayes.train()
 
-    # testing
-    print(' >  [BAYES]  testing ...')
-    naiveBayes.test()
-
-    print(' > ')
+        # testing
+        print(' >  [BAYES]  testing ...')
+        naiveBayes.test()
 
     #
     # SVM
+    #
 
-    # initialization
-    print(' >  [SVM]  features initialization ...')
-    svm = SVM()
+    if ENABLED_MODELS['SVM']:
+        print(' > ')
+        # initialization
+        print(' >  [SVM]  features initialization ...')
+        svm = SVM()
 
-    # training
-    print(' >  [SVM]  training ...')
-    svm.train()
+        # training
+        print(' >  [SVM]  training ...')
+        svm.train()
 
-    # testing
-    print(' >  [SVM]  testing ...')
-    svm.test()
-
-    print(' > ')
+        # testing
+        print(' >  [SVM]  testing ...')
+        svm.test()
 
     #
-    # CNN
+    # NN
+    #
 
-    # initialization
-    print(' >  [CNN]  features initialization ...')
-    cnn: CNN = CNN()
+    if ENABLED_MODELS['NN']:
+        print(' > ')
+        # initialization
+        print(' >  [NN]  features initialization ...')
+        nn: CNN = NN()
 
-    # training
-    print(' >  [CNN]  training ...')
-    cnn.train()
+        # training
+        print(' >  [NN]  training ...')
+        nn.train()
 
-    # testing
-    print(' >  [CNN]  testing ...')
-    cnn.test()
+        # testing
+        print(' >  [NN]  testing ...')
+        nn.test()
 
-    print(' > ')
-    print('\n')
+    #
+
+    if ENABLED_MODELS['BAYES'] or ENABLED_MODELS['SVM'] or ENABLED_MODELS['NN']:
+        print(' > ')
+
+    print('')
 

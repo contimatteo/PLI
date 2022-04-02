@@ -7,18 +7,22 @@ import json
 LANGUAGES_URL = os.path.join(os.getcwd(), 'configurations/languages.json')
 RESERVED_WORDS_URL = os.path.join(os.getcwd(), 'configurations/reserved.json')
 ESCAPED_TOKENS = {
-    'FILE_BEGIN': '__BOF__',
-    'FILE_END': '__EOF__',
-    'NEW_LINE': '__NL__',
+    # 'FILE_BEGIN': '__BOF__',
+    # 'FILE_END': '__EOF__',
+    # 'NEW_LINE': '__NL__',
     'ALPHA': '__a__',
     'NUMBER': '__n__',
+    'NOT_RELEVANT': '__nr__',
 }
 CONFIGURATION = {
-    'FEATURE_FREQUENCY_THRESHOLD': 0.1,
-    'TRAINING_EXAMPLES_NUMBER': 350
+    'TRAINING_EXAMPLES_NUMBER': 400
 }
 TOKENIZER_CONFIG = {
-    'filter': '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n'
+    'puntaction': r'[\w\']+|[\[\]!`<>"\'$%&()*+,./:;=#@?\\^{|}~-]+',
+    # without specials
+    'filter': '!"`\'#$%&()*+,-./:;<=>?@[\\]^{|}~\t\n',
+    # with specials 
+    # 'filter': '',
 }
 
 

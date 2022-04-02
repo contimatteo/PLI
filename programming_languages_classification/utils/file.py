@@ -9,9 +9,10 @@ SOURCE_FOLDER: str = "../datasets/rosetta-code/Lang"
 DESTINATION_FOLDER: str = "tmp"
 TRAINING_FOLDER: str = 'training'
 TESTING_FOLDER: str = 'testing'
-WORDS_INDEXES_FOLDER: str = 'words-indexes'
+VOCABULARIES_FOLDER: str = 'vocabularies'
 MODELS_FOLDER: str = 'models'
 FEATURES_FOLDER = 'features'
+REPORTS_FOLDER = 'reports'
 
 
 FILE_NAMES: dict = {
@@ -46,14 +47,20 @@ class FileManagerClass:
         fileName = algorithm + '.json'
         return os.path.join(self.getFeaturesFolderUrl(), fileName)
 
-    def getWordsIndexesFileUrl(self, algorithm: str, axis: str = 'x'):
+    def getVocabularyFileUrl(self, algorithm: str, axis: str = 'x'):
         name: str = axis + '-' + algorithm.lower() + '.json'
-        return os.path.join(self.getWordsIndexesFolderUrl(), name)
+        return os.path.join(self.getVocabularyFolderUrl(), name)
 
     def getTrainedModelFileUrl(self, algorithm: str):
         extension = self.__getModelFileExtensionByAlgorithm(algorithm)
         name: str = algorithm.lower() + '.' + extension
         return os.path.join(self.getModelsFolderUrl(), name)
+
+    def getReportFileUrl(self, algorithm: str):
+        return os.path.join(self.getReportsFolderUrl(),  algorithm.lower() + '.txt')
+
+    def getDatasetCopyFileUrl(self):
+        return os.path.join(self.getTmpFolderUrl(),  '_dataset.copy.json')
 
     def readFile(self, url):
         file = open(url, 'r')
@@ -89,11 +96,14 @@ class FileManagerClass:
     def getModelsFolderUrl(self):
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, MODELS_FOLDER])
 
-    def getWordsIndexesFolderUrl(self):
-        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, WORDS_INDEXES_FOLDER])
+    def getVocabularyFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, VOCABULARIES_FOLDER])
 
     def getFeaturesFolderUrl(self):
         return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, FEATURES_FOLDER])
+
+    def getReportsFolderUrl(self):
+        return os.path.join(ROOT_DIR, *[DESTINATION_FOLDER, REPORTS_FOLDER])
 
     #
 

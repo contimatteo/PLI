@@ -33,11 +33,11 @@ class _BaseAlgorithm:
 
     #
 
-    def importWordsIndexes(self):
-        return json.loads(FileManager.readFile(FileManager.getWordsIndexesFileUrl(self.type)))
+    def importVocabulary(self):
+        return json.loads(FileManager.readFile(FileManager.getVocabularyFileUrl(self.type)))
 
-    def exportWordsIndexes(self, indexes):
-        FileManager.writeFile(FileManager.getWordsIndexesFileUrl(self.type), json.dumps(indexes))
+    def exportVocabulary(self, indexes):
+        FileManager.writeFile(FileManager.getVocabularyFileUrl(self.type), json.dumps(indexes))
         return self
 
     def importKerasTrainedModel(self):
@@ -55,6 +55,9 @@ class _BaseAlgorithm:
     def exportScikitTrainedModel(self):
         joblib.dump(self.model, FileManager.getTrainedModelFileUrl(self.type))
         return self
+
+    def exportClassificationReport(self, report: str):
+        FileManager.writeFile(FileManager.getReportFileUrl(self.type), report)
 
     #
 
@@ -78,18 +81,22 @@ class _BaseAlgorithm:
 
     #
 
-    def extractSources(self, dataset: str):
+    def extractSources(self, dataset: str, sourceType: str = 'parsed'):
         X_raw = []
         Y_raw = []
         sources: dict = self.Dataset.getSources(dataset)
 
         for language in sources:
             for exampleDict in sources[language]:
-                X_raw.append(
-                    str(exampleDict['parsed']) \
-                        .replace(ESCAPED_TOKENS['ALPHA'], '') \
-                        .replace(ESCAPED_TOKENS['NUMBER'], '')
-                )
+                source = str(exampleDict[sourceType])
+                source = source.replace(ESCAPED_TOKENS['ALPHA'], '')
+                source = source.replace(ESCAPED_TOKENS['NUMBER'], '')
+                source = source.replace(ESCAPED_TOKENS['NOT_RELEVANT'], '')
+                source = source.replace('\n', ' ')
+
+                source = ' '.join([w for w in source.split(' ') if len(w.strip()) > 0])
+
+                X_raw.append(source)
                 Y_raw.append(language)
 
         return X_raw, Y_raw

@@ -6,16 +6,16 @@ from .base import _BaseAlgorithm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
 from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
 import keras.preprocessing.text as kpt
 from collections import Counter
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
+ESCAPED_TOKENS = ConfigurationManager.escaped_tokens
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'max_features': 100000,
-    'max_len_sequences': 100
+    'max_features': 10000,
+    'max_len_sequences': 500
 }
 
 
@@ -23,7 +23,6 @@ class NaiveBayes(_BaseAlgorithm):
 
     def __init__(self):
         super().__init__()
-
         self.type = 'BAYES'
         self.config = MODEL_CONFIG.copy()
 
@@ -32,10 +31,6 @@ class NaiveBayes(_BaseAlgorithm):
     def train(self):
         if os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             return self
-
-        #
-        # PREPARE FEATURES
-        #
 
         # preparing features
         X, languages = self.__prepareFeatures('training', False)
@@ -46,10 +41,6 @@ class NaiveBayes(_BaseAlgorithm):
 
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
-
-        #
-        # TRAINING
-        #
 
         # prepare model
         self.__prepareModel()
@@ -64,34 +55,33 @@ class NaiveBayes(_BaseAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('testing', True)
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('testing', True)
+
         # import trained model
         self.importScikitTrainedModel()
 
-        #
-        # TESTING
-        #
-
+        # make predictions
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
 
+        # metrics
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [BAYES]  algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        report = classification_report(Y_real, Y_predicted, target_names=Y_Encoder.classes_)
+        print(' >  [BAYES]  classification report exported!')
+        print(' >  [BAYES]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+
+        # export the classification report
+        self.exportClassificationReport(str(report))
 
         return self
 
     def __prepareModel(self):
-        self.model = naive_bayes.GaussianNB()
+        self.model = naive_bayes.MultinomialNB()
         return self
 
     def __prepareFeatures(self, dataset: str, importWordsIndexes=False):
@@ -105,15 +95,15 @@ class NaiveBayes(_BaseAlgorithm):
         wordsIndexes = {}
         if not importWordsIndexes:
             # tokenization
-            tokenizer = Tokenizer(num_words=max_features)
+            tokenizer = Tokenizer(num_words=max_features, filters=TOKENIZER_CONFIG['filter'])
             tokenizer.fit_on_texts(sources)
             # export words indexes
-            self.exportWordsIndexes(tokenizer.word_index)
+            self.exportVocabulary(tokenizer.word_index)
             # set the indexes
             wordsIndexes = tokenizer.word_index
         else:
             # import and set the words indexes
-            wordsIndexes = self.importWordsIndexes()
+            wordsIndexes = self.importVocabulary()
 
         # sort the dict by the words indexes
         wordsIndexesSortedByIndex = {k: v for k, v in sorted(wordsIndexes.items(), key=lambda item: item[1])}
@@ -123,7 +113,7 @@ class NaiveBayes(_BaseAlgorithm):
             language = languages[i]
             features: list = []
 
-            sourceTokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            sourceTokens = set(source.split(' '))
             sourceTokensOccurencies = Counter(list(sourceTokens))
             for token, indexValue in wordsIndexesSortedByIndex.items():
                 if token not in sourceTokensOccurencies:
@@ -135,3 +125,9 @@ class NaiveBayes(_BaseAlgorithm):
             Y.append(language)
 
         return X, Y
+
+    #
+
+    # @override
+    def extractSources(self, dataset: str):
+        return super().extractSources(dataset, 'filtered')

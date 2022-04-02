@@ -1,36 +1,25 @@
 # /usr/bin/env python3
 
-from solver import ProblemSolver
+from dataset import DatasetManager
 from utils import FileManager
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-import pandas as pd
-from sklearn.model_selection import train_test_split
 import pandas as pd
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Flatten
-from keras.layers.wrappers import TimeDistributed
+from keras.layers.core import Dense
 from keras.layers.embeddings import Embedding
 from keras.layers import Conv1D, MaxPooling1D
-from keras.layers import Dropout, Bidirectional
-from keras.callbacks import TensorBoard
+from keras.layers import Dropout
 from keras.layers.recurrent import LSTM
 from sklearn.model_selection import train_test_split
-import re
-import numpy as np
 import os
 import json
-import sys
 
-##
 
 def main():
-    Solver = ProblemSolver()
-    Solver.initialize()
-    Solver.loadDataset()
+    # load the dataset
+    datasetManager = DatasetManager()
+    datasetManager.initialize('CNN').load()
 
     #
 

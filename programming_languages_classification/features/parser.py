@@ -51,7 +51,8 @@ class Parser:
         return ' '.join(words)
 
     def _splitPuntaction(self, line: str):
-        newLine = regex.sub(r'[]!"$%&\'()*+,./:;=#@?[\\^_`{|}~-]+', r' \g<0> ', line).strip()
+        # newLine = regex.sub(r'[]!"$%&\'()*+,./:;=#@?[\\^_`{|}~-]+', r' \g<0> ', line).strip()
+        newLine = ' '.join(regex.findall(TOKENIZER_CONFIG['puntaction'], line)).strip()
         return self._removeMultipleSpacesFrom(newLine)
 
     def _replaceNumericSequence(self, line: str):
@@ -59,7 +60,7 @@ class Parser:
         # analyze each word
         for ix, w in enumerate(words):
             w = w.replace(' ', '')
-            if regex.match("^[0-9]$", w): # this word contains only numbers?
+            if regex.match("^[0-9]+$", w): # this word contains only numbers?
                 words[ix] = ESCAPED_TOKENS['NUMBER']
 
         return ' '.join(words)
@@ -73,6 +74,17 @@ class Parser:
                 continue
             if regex.match("^[a-zA-Z]$", w): # this word contains only one letter?
                 words[ix] = ESCAPED_TOKENS['ALPHA']
+
+        return ' '.join(words)
+
+    def _replaceEmptyCharacters(self, line: str):
+        words: list = []
+        # analyze each word
+        for ix, w in enumerate(line.split(' ')):
+            w = self._removeMultipleSpacesFrom(w)
+            if len(w) < 1 or w == '':
+                continue
+            words.append(w)
 
         return ' '.join(words)
 
@@ -92,21 +104,23 @@ class Parser:
         for line in originalFile:
             parsedLine: str = ""
             # original content to LOWERCASE
-            parsedLine += str(line).lower().replace('\n', '')
+            parsedLine += str(line).lower().replace('\n', ' ')  # '\n\n' case removed
             # parse only if this line isn't a COMMENT
             if not self._isLineAComment(parsedLine):
                 # split ALPHA and NUMERIC chars
                 parsedLine = self._splitAlphaAndNumericChars(parsedLine)
                 # split PUNCTUATION chars
-                # parsedLine = self._splitPuntaction(parsedLine)
+                parsedLine = self._splitPuntaction(parsedLine)
                 # replace NUMERIC sequence
                 parsedLine = self._replaceNumericSequence(parsedLine)
                 # replace ALPHA chars
                 parsedLine = self._replaceAlphaCharacters(parsedLine)
+                # filter empty chars
+                parsedLine = self._replaceEmptyCharacters(parsedLine)
                 # replace NEW LINE char
                 # parsedLine += ' ' + ESCAPED_TOKENS['NEW_LINE'] + ' '
                 # add line to final parsed content
-                parsedContent += parsedLine + '\n'
+                parsedContent += parsedLine + ' \n '
 
         # end the parsed file content
         # parsedContent += ' ' + ESCAPED_TOKENS['FILE_END']

@@ -5,7 +5,7 @@ from .base import _BaseAlgorithm
 from sklearn import svm
 from sklearn import preprocessing
 from utils import ConfigurationManager, FileManager
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 import keras.preprocessing.text as kpt
 import math
 import json
@@ -13,7 +13,7 @@ import json
 
 TOKENIZER_CONFIG: dict = ConfigurationManager.tokenizerConfiguration
 MODEL_CONFIG: dict = {
-    'number_of_tokens_for_language': 20
+    'number_of_tokens_for_language': 15
 }
 
 
@@ -33,24 +33,18 @@ class SVM(_BaseAlgorithm):
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
-        #
-        # PREPARE FEATURES
-        #
-
         # preparing features
         X, languages = self.__prepareFeatures('training')
 
         # (X, Y) creation
         Y = Y_Encoder.transform(languages)
 
-        #
-        # TRAINING
-        #
-
         # prepare model
         self.__prepareModel()
+
         # training
         self.model.fit(X, Y)
+
         # export the trained model
         self.exportScikitTrainedModel()
 
@@ -60,36 +54,35 @@ class SVM(_BaseAlgorithm):
         if not os.path.exists(FileManager.getTrainedModelFileUrl(self.type)):
             raise Exception('You can\'t test a model without training it')
 
-        #
-        # PREPARE FEATURES
-        #
-
-        # preparing features
-        X, languages = self.__prepareFeatures('testing')
-
         # label encoder
         Y_Encoder = preprocessing.LabelEncoder()
         Y_Encoder.fit(ConfigurationManager.getLanguages())
 
+        # preparing features
+        X, languages = self.__prepareFeatures('testing')
+
         # import trained model
         self.importScikitTrainedModel()
 
-        #
-        # TESTING
-        #
-
+        # make predictions
         Y_real = Y_Encoder.transform(languages)
         Y_predicted = self.model.predict(X)
 
+        # metrics
         accuracy = accuracy_score(Y_real, Y_predicted)
-        print(' >  [SVM]  algorithm accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+        report = classification_report(Y_real, Y_predicted, target_names=Y_Encoder.classes_)
+        print(' >  [SVM]  classification report exported!')
+        print(' >  [SVM]  total accuracy = ' + str(float("{:.2f}".format(accuracy)) * 100) + '%')
+
+        # export the classification report
+        self.exportClassificationReport(str(report))
 
         return self
 
     ##
 
     def __prepareModel(self):
-        self.model = svm.SVC()
+        self.model = svm.SVC(kernel='linear')
         return self
 
     def __calculateTokensEntropyLoss(self, dataset: str):
@@ -102,7 +95,7 @@ class SVM(_BaseAlgorithm):
 
         for index, source in enumerate(sources):
             language = languages[index]
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             for token in tokens:
                 if token not in withTokensOccurencyMap:
                     withTokensOccurencyMap[token] = []
@@ -110,7 +103,7 @@ class SVM(_BaseAlgorithm):
 
         for index, source in enumerate(sources):
             language = languages[index]
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             for token in withTokensOccurencyMap:
                 if token not in tokens:
                     if token not in withoutTokensOccurencyMap:
@@ -154,11 +147,13 @@ class SVM(_BaseAlgorithm):
                 pr_C_f: float = numberOfPositiveExamplesWithFeatureF / numberOfExamplesWithFeatureF
                 pr_C_notf: float = numberOfPositiveExamplesWithoutFeatureF / numberOfExamplesWithoutFeatureF
 
+                # TODO: use this https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
                 pr_C = (pr_C if pr_C > 0 else .0001)
                 pr_f = (pr_f if pr_f > 0 else .0001)
                 pr_C_f = (pr_C_f if pr_C_f > 0 else .0001)
                 pr_C_notf = (pr_C_notf if pr_C_notf > 0 else .0001)
 
+                # TODO: use this https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range
                 pr_C = (pr_C if pr_C < 1 else .9999)
                 pr_f = (pr_f if pr_f < 1 else .9999)
                 pr_C_f = (pr_C_f if pr_C_f < 1 else .9999)
@@ -195,7 +190,7 @@ class SVM(_BaseAlgorithm):
         for idx, source in enumerate(sources):
             language = languages[idx]
             features = []
-            tokens = set(kpt.text_to_word_sequence(source, filters=TOKENIZER_CONFIG['filter']))
+            tokens = set(source.split(' '))
             # X
             for _lang in languageFeatures:
                 for _tk in languageFeatures[_lang]:
