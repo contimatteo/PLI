@@ -10,7 +10,6 @@ if __name__ == "__main__":
 
     #
     # BAYES
-    #
 
     # initialization
     print(' >  [BAYES]  features initialization ...')
@@ -28,7 +27,6 @@ if __name__ == "__main__":
 
     #
     # SVM
-    #
 
     # initialization
     print(' >  [SVM]  features initialization ...')
@@ -46,7 +44,6 @@ if __name__ == "__main__":
 
     #
     # CNN
-    #
 
     # initialization
     print(' >  [CNN]  features initialization ...')
